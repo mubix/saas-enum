@@ -1,0 +1,1920 @@
+# SaaS Provider Verification TXT Record Rules
+#
+# Each rule defines how to identify a SaaS provider from DNS TXT records.
+#
+# Fields:
+#   name:         SaaS provider name
+#   category:     Provider category (e.g., collaboration, security, devops)
+#   description:  Brief description of the provider
+#   website:      Provider's website
+#   match_type:   How to match the TXT record: prefix, substring, or regex
+#   pattern:      The string or regex to match against
+#   reference:    URL documenting the verification process (optional)
+#
+# Contributing:
+#   Add new providers alphabetically within their category.
+#   Use 'prefix' when the TXT record starts with a known string (most common).
+#   Use 'substring' when the identifying string can appear anywhere.
+#   Use 'regex' only when prefix/substring won't work.
+
+---
+
+# ── Identity & Access Management ─────────────────────────────────────────────
+
+- name: Adobe IDP
+  category: identity
+  description: Enterprise SSO and identity federation for Adobe Creative Cloud and Document Cloud
+  website: https://www.adobe.com
+  match_type: prefix
+  pattern: "adobe-idp-site-verification="
+  impact: >-
+    Compromised credentials grant access to all Adobe enterprise apps (Creative Cloud, Document Cloud), federated SSO to third-party services, and admin control over user provisioning and licensing
+  reference: https://helpx.adobe.com/enterprise/using/verify-domain-ownership.html
+
+- name: Apple Business
+  category: identity
+  description: Apple Business Manager for enterprise device enrollment and app distribution
+  website: https://business.apple.com
+  match_type: prefix
+  pattern: "apple-domain-verification="
+  impact: >-
+    Compromised credentials grant access to Apple Business Manager , device enrollment, app purchasing, managed Apple IDs, and the ability to push MDM profiles to the entire device fleet
+  reference: https://support.apple.com/guide/apple-business-manager/verify-domain
+
+- name: Duo Security
+  category: identity
+  description: Multi-factor authentication (MFA) and single sign-on platform owned by Cisco
+  website: https://duo.com
+  match_type: prefix
+  pattern: "duo_sso_verification="
+  impact: >-
+    Compromised admin credentials allow disabling MFA for targeted users, creating bypass codes, or modifying authentication policies , enabling silent access to all Duo-protected applications
+
+- name: Microsoft 365
+  category: identity
+  description: Microsoft 365 suite including Exchange Online, SharePoint, Teams, and Azure AD
+  website: https://www.microsoft.com/microsoft-365
+  match_type: prefix
+  pattern: "MS="
+  impact: >-
+    Compromised credentials grant access to email (Exchange Online), files (SharePoint/OneDrive), Teams chat history, and admin console for user management and mail flow rules
+
+- name: Microsoft Domain
+  category: identity
+  description: Alternate Microsoft domain verification used for Azure and M365 services
+  website: https://www.microsoft.com
+  match_type: prefix
+  pattern: "ms-domain-verification="
+  impact: >-
+    Compromised credentials grant access to Azure AD and M365 admin portals , user provisioning, mail routing, conditional access policies, and enterprise application registrations
+
+- name: Okta
+  category: identity
+  description: Enterprise identity and access management platform providing SSO, MFA, and lifecycle management
+  website: https://www.okta.com
+  match_type: prefix
+  pattern: "okta-domain-verification="
+  impact: >-
+    Compromised admin credentials provide access to the organization's entire SSO fabric , ability to impersonate any user, modify MFA policies, create backdoor accounts, and pivot into every connected application
+
+# ── Collaboration & Productivity ─────────────────────────────────────────────
+
+- name: Airtable
+  category: collaboration
+  description: Cloud-based spreadsheet-database hybrid used for project management and internal workflows
+  website: https://www.airtable.com
+  match_type: prefix
+  pattern: "airtable-verification="
+  impact: >-
+    Compromised credentials expose internal databases, project trackers, CRM data, and workflow automations , Airtable bases often contain unstructured sensitive data that bypasses traditional DLP
+
+- name: Asana
+  category: collaboration
+  description: Work management platform for task tracking, project planning, and team collaboration
+  website: https://asana.com
+  match_type: prefix
+  pattern: "asana-domain-verification="
+  impact: >-
+    Compromised credentials expose project plans, task assignments, internal discussions, and strategic timelines across all teams the user has access to
+
+- name: Atlassian
+  category: collaboration
+  description: Atlassian Cloud suite including Jira, Confluence, Trello, and Bitbucket
+  website: https://www.atlassian.com
+  match_type: prefix
+  pattern: "atlassian-domain-verification="
+  impact: >-
+    Compromised credentials expose Confluence wikis (often containing architecture docs, runbooks, credentials), Jira tickets with vulnerability details, and Bitbucket source code repositories
+  reference: https://support.atlassian.com/organization-administration/docs/verify-a-domain-for-your-organization/
+
+- name: DocuSign
+  category: collaboration
+  description: Electronic signature platform for contracts, agreements, and legal documents
+  website: https://www.docusign.com
+  match_type: prefix
+  pattern: "docusign="
+  impact: >-
+    Compromised credentials allow sending signing requests from the organization's account, accessing completed contracts with signatures, and viewing legal agreements and financial documents
+  reference: https://support.docusign.com/s/articles/How-to-verify-a-domain
+
+- name: Google Workspace
+  category: collaboration
+  description: Google's productivity suite including Gmail, Drive, Docs, Calendar, and admin console
+  website: https://workspace.google.com
+  match_type: prefix
+  pattern: "google-site-verification="
+  impact: >-
+    Compromised credentials grant access to Gmail (email content and contacts), Google Drive (documents, spreadsheets, presentations), Calendar (meeting details), and admin console for domain-wide delegation
+  reference: https://support.google.com/a/answer/183895
+
+- name: Miro
+  category: collaboration
+  description: Online collaborative whiteboard for visual brainstorming, design, and planning
+  website: https://miro.com
+  match_type: prefix
+  pattern: "miro-verification="
+  impact: >-
+    Compromised credentials expose collaborative whiteboards containing strategic planning, architecture diagrams, brainstorming sessions, and product roadmaps
+
+- name: Notion
+  category: collaboration
+  description: All-in-one workspace for wikis, docs, project management, and knowledge bases
+  website: https://www.notion.so
+  match_type: prefix
+  pattern: "notion-domain-verification="
+  impact: >-
+    Compromised credentials expose wikis, engineering docs, meeting notes, company policies, and databases , Notion workspaces are often a single source of truth containing highly sensitive organizational knowledge
+
+- name: Webex
+  category: collaboration
+  description: Cisco Webex video conferencing and team messaging platform
+  website: https://www.webex.com
+  match_type: prefix
+  pattern: "ciscocidomainverification="
+  impact: >-
+    Compromised credentials allow joining or recording meetings, accessing meeting transcripts and recordings, and viewing the organization's contact directory
+
+- name: Webex (alt)
+  category: collaboration
+  description: Cisco Webex domain verification (alternate DNS record format)
+  website: https://www.webex.com
+  match_type: prefix
+  pattern: "webexdomainverification."
+  impact: >-
+    Compromised credentials allow joining or recording meetings, accessing meeting transcripts and recordings, and viewing the organization's contact directory
+
+- name: Webex (CI)
+  category: collaboration
+  description: Cisco Webex Cloud Identity for federated authentication and user provisioning
+  website: https://www.webex.com
+  match_type: prefix
+  pattern: "cisco-ci-domain-verification="
+  impact: >-
+    Compromised admin credentials allow modifying Webex identity federation settings, provisioning rogue users, or intercepting SSO authentication flows to connected Webex services
+
+- name: Wrike
+  category: collaboration
+  description: Enterprise project management and collaborative work platform
+  website: https://www.wrike.com
+  match_type: prefix
+  pattern: "wrike-verification="
+  impact: >-
+    Compromised credentials expose project timelines, resource allocations, task details, and file attachments across the organization's work management environment
+
+# ── Communication ────────────────────────────────────────────────────────────
+
+- name: Slack
+  category: communication
+  description: Business messaging platform for team communication and workflow automation
+  website: https://slack.com
+  match_type: prefix
+  pattern: "slack-domain-verification="
+  impact: >-
+    Compromised credentials expose years of searchable message history, DMs, private channels, shared files, and integrated app data , Slack channels often contain credentials, API keys, and internal discussions never meant to be public
+
+- name: Twilio
+  category: communication
+  description: Cloud communications platform for SMS, voice, video, and email APIs
+  website: https://www.twilio.com
+  match_type: prefix
+  pattern: "twilio-domain-verification="
+  impact: >-
+    Compromised credentials allow sending SMS/voice calls from the organization's phone numbers, accessing communication logs, and reading message content , enables smishing and vishing using the org's real numbers
+
+# ── DevOps & Developer Tools ─────────────────────────────────────────────────
+
+- name: Anthropic
+  category: devtools
+  description: AI safety company and creator of Claude; enterprise API and console access
+  website: https://www.anthropic.com
+  match_type: prefix
+  pattern: "anthropic-domain-verification-"
+  impact: >-
+    Compromised credentials grant access to API keys, conversation logs, usage data, and billing , attacker could run expensive API calls or access proprietary prompts and system instructions
+
+- name: Docker
+  category: devtools
+  description: Container platform for building, sharing, and running container images via Docker Hub
+  website: https://www.docker.com
+  match_type: prefix
+  pattern: "docker-verification="
+  impact: >-
+    Compromised credentials allow pushing malicious container images to the organization's Docker Hub repositories, potentially compromising downstream deployments that pull these images
+
+- name: GitLab
+  category: devtools
+  description: DevSecOps platform with source code management, CI/CD, and security scanning
+  website: https://about.gitlab.com
+  match_type: prefix
+  pattern: "gitlab-pages-verification-code="
+  impact: >-
+    Compromised credentials expose source code repositories, CI/CD pipelines (often containing secrets), merge request discussions, and container registries
+
+- name: HackerOne
+  category: devtools
+  description: Bug bounty and vulnerability disclosure platform connecting organizations with security researchers
+  website: https://www.hackerone.com
+  match_type: prefix
+  pattern: "h1-domain-verification="
+  impact: >-
+    Compromised credentials expose unpatched vulnerability reports, researcher communications, and security assessment details , a roadmap for exploiting the organization's systems
+
+- name: LaunchDarkly
+  category: devtools
+  description: Feature flag management platform for controlled software releases and experimentation
+  website: https://launchdarkly.com
+  match_type: prefix
+  pattern: "launchdarkly-domain-verification="
+  impact: >-
+    Compromised credentials allow toggling feature flags in production , enabling hidden features, disabling security controls, or causing service disruptions
+
+- name: Postman
+  category: devtools
+  description: API development and testing platform with team workspaces and published API documentation
+  website: https://www.postman.com
+  match_type: prefix
+  pattern: "postman-domain-verification="
+  impact: >-
+    Compromised credentials expose API collections containing endpoints, authentication tokens, request/response examples, and environment variables with secrets
+
+- name: Autodesk
+  category: devtools
+  description: 3D design, engineering, and construction software (AutoCAD, Revit, Fusion)
+  website: https://www.autodesk.com
+  match_type: prefix
+  pattern: "autodesk-domain-verification="
+  impact: >-
+    Compromised credentials expose engineering designs, CAD files, BIM models, and construction documents , potentially revealing trade secrets or critical infrastructure blueprints
+
+- name: Bitrise
+  category: devtools
+  description: Mobile CI/CD platform for building, testing, and deploying iOS and Android apps
+  website: https://bitrise.io
+  match_type: prefix
+  pattern: "bitrise-verification="
+  impact: >-
+    Compromised credentials expose mobile app build pipelines, signing certificates, provisioning profiles, and the ability to inject code into iOS/Android builds
+
+- name: BrowserStack
+  category: devtools
+  description: Cross-browser and device testing platform for web and mobile applications
+  website: https://www.browserstack.com
+  match_type: prefix
+  pattern: "browserstack-domain-verification="
+  impact: >-
+    Compromised credentials expose test sessions that may contain pre-release application screenshots, session recordings, and credentials used in testing environments
+
+- name: Bugcrowd
+  category: devtools
+  description: Crowdsourced security testing and bug bounty platform
+  website: https://www.bugcrowd.com
+  match_type: prefix
+  pattern: "bugcrowd-verification="
+  impact: >-
+    Compromised credentials expose submitted vulnerability reports, triage notes, and bounty communications , revealing unpatched security flaws in the organization's systems
+
+- name: Cursor
+  category: devtools
+  description: AI-powered code editor with integrated LLM assistance for software development
+  website: https://cursor.com
+  match_type: prefix
+  pattern: "cursor-domain-verification-"
+  impact: >-
+    Compromised credentials expose shared code contexts, AI conversation history with code snippets, and team coding configurations
+
+- name: Figma
+  category: devtools
+  description: Collaborative interface design tool for UI/UX, prototyping, and design systems
+  website: https://www.figma.com
+  match_type: prefix
+  pattern: "figma-domain-verification="
+  impact: >-
+    Compromised credentials expose product designs, UI mockups, design systems, and prototype flows , revealing unreleased features and product strategy
+
+- name: GitHub
+  category: devtools
+  description: Source code hosting and collaboration platform with CI/CD, packages, and security features
+  website: https://github.com
+  match_type: prefix
+  pattern: "_github-challenge-"
+  impact: >-
+    Compromised credentials expose source code, CI/CD secrets in Actions workflows, private repositories, deployment keys, and the ability to push malicious code or create backdoored releases
+
+- name: Gradle
+  category: devtools
+  description: Build automation and dependency management platform for JVM and multi-language projects
+  website: https://gradle.com
+  match_type: prefix
+  pattern: "gradle-verification="
+  impact: >-
+    Compromised credentials allow publishing malicious build plugins or artifacts to the organization's Gradle repositories, enabling supply chain attacks
+
+- name: JetBrains
+  category: devtools
+  description: Developer tools company (IntelliJ IDEA, PyCharm, WebStorm, TeamCity, Space)
+  website: https://www.jetbrains.com
+  match_type: prefix
+  pattern: "jetbrains-domain-verification="
+  impact: >-
+    Compromised credentials expose JetBrains Space projects, code reviews, CI/CD pipelines, and license management , attacker could access or modify development workflows
+
+- name: Linear
+  category: devtools
+  description: Issue tracking and project management built for modern engineering teams
+  website: https://linear.app
+  match_type: prefix
+  pattern: "linear-domain-verification="
+  impact: >-
+    Compromised credentials expose engineering issue trackers with bug details, sprint plans, security tickets, and internal project discussions
+
+- name: Loom
+  category: devtools
+  description: Async video messaging platform for screen recordings and team communication
+  website: https://www.loom.com
+  match_type: prefix
+  pattern: "loom-site-verification="
+  impact: >-
+    Compromised credentials expose internal video recordings of screen shares, product demos, onboarding materials, and team communications that may contain sensitive information
+
+- name: OpenAI
+  category: devtools
+  description: AI platform providing ChatGPT, GPT APIs, and enterprise AI services
+  website: https://openai.com
+  match_type: prefix
+  pattern: "openai-domain-verification="
+  impact: >-
+    Compromised credentials grant access to API keys, conversation history, custom GPTs with proprietary instructions, fine-tuned models, and billing that could be exploited for costly API abuse
+
+- name: Perplexity AI
+  category: devtools
+  description: AI-powered search and answer engine with enterprise features
+  website: https://www.perplexity.ai
+  match_type: prefix
+  pattern: "perplexity-ai-domain-verification-"
+  impact: >-
+    Compromised credentials expose enterprise search history, shared research threads, and AI-generated reports that may contain sensitive business intelligence
+
+# ── Monitoring & Observability ───────────────────────────────────────────────
+
+- name: Dynatrace
+  category: monitoring
+  description: Full-stack application performance monitoring and infrastructure observability platform
+  website: https://www.dynatrace.com
+  match_type: prefix
+  pattern: "Dynatrace-site-verification="
+  impact: >-
+    Compromised credentials expose full application topology maps, performance data, code-level traces, and infrastructure metrics , revealing architecture, dependencies, and potential bottlenecks
+
+# ── Data & Analytics ─────────────────────────────────────────────────────────
+
+- name: MongoDB Atlas
+  category: data
+  description: Cloud-hosted MongoDB database service with global clusters and data analytics
+  website: https://www.mongodb.com/atlas
+  match_type: prefix
+  pattern: "mongodb-site-verification="
+  impact: >-
+    Compromised credentials grant direct access to production databases, backup snapshots, connection strings, and the ability to exfiltrate or modify stored data
+
+- name: Mixpanel
+  category: analytics
+  description: Product analytics platform tracking user interactions, funnels, and retention
+  website: https://mixpanel.com
+  match_type: prefix
+  pattern: "mixpanel-domain-verify="
+  impact: >-
+    Compromised credentials expose product analytics including user behavior flows, conversion funnels, A/B test results, and cohort data that reveals business performance metrics
+
+- name: Pendo
+  category: analytics
+  description: Product experience and analytics platform for in-app guidance and user behavior tracking
+  website: https://www.pendo.io
+  match_type: prefix
+  pattern: "pendo-domain-verification="
+  impact: >-
+    Compromised credentials allow injecting in-app guides and overlays visible to all users, accessing product usage analytics, and viewing user feedback data
+
+- name: Segment
+  category: analytics
+  description: Customer data platform (CDP) for collecting, routing, and unifying user data across tools
+  website: https://segment.com
+  match_type: prefix
+  pattern: "segment-site-verification="
+  impact: >-
+    Compromised credentials expose the customer data pipeline , PII flowing between tools, tracking configurations, and the ability to redirect data streams to attacker-controlled destinations
+
+# ── Security & Compliance ────────────────────────────────────────────────────
+
+- name: OneTrust
+  category: compliance
+  description: Privacy, security, and data governance platform for compliance management (GDPR, CCPA)
+  website: https://www.onetrust.com
+  match_type: prefix
+  pattern: "onetrust-domain-verification="
+  impact: >-
+    Compromised credentials expose privacy impact assessments, data processing inventories, vendor risk assessments, and compliance documentation , a detailed map of the organization's data practices
+
+- name: Censys
+  category: security
+  description: Attack surface management platform providing internet-wide scanning and asset discovery
+  website: https://censys.io
+  match_type: prefix
+  pattern: "censys-domain-verification="
+  impact: >-
+    Compromised credentials expose the organization's full attack surface inventory , external assets, open ports, certificates, and cloud resources that provide reconnaissance for further attacks
+
+- name: CrowdStrike
+  category: security
+  description: Endpoint detection and response (EDR) and threat intelligence platform (Falcon)
+  website: https://www.crowdstrike.com
+  match_type: prefix
+  pattern: "crowdstrike-domain-verification="
+  impact: >-
+    Compromised credentials expose endpoint detection alerts, threat intelligence, incident response data, and the ability to modify security policies or whitelist malicious processes
+
+- name: Detectify
+  category: security
+  description: External attack surface management with automated vulnerability scanning
+  website: https://detectify.com
+  match_type: prefix
+  pattern: "detectify-verification="
+  impact: >-
+    Compromised credentials expose vulnerability scan results with specific findings, affected URLs, and remediation status , a prioritized list of exploitable weaknesses
+
+- name: Have I Been Pwned
+  category: security
+  description: Data breach notification service alerting organizations to compromised credentials
+  website: https://haveibeenpwned.com
+  match_type: prefix
+  pattern: "have-i-been-pwned-verification="
+  impact: >-
+    Compromised credentials expose breach notification data showing which employee email addresses appeared in data breaches, including which breaches and when
+
+- name: Palo Alto Networks
+  category: security
+  description: Cybersecurity platform including next-gen firewalls, Prisma Cloud, and Cortex XDR
+  website: https://www.paloaltonetworks.com
+  match_type: prefix
+  pattern: "paloaltonetworks-site-verification="
+  impact: >-
+    Compromised credentials expose firewall configurations, security policy rules, threat logs, and cloud security posture data , enabling attackers to understand and evade the organization's defenses
+
+- name: SafeBreach
+  category: security
+  description: Breach and attack simulation platform for testing security controls
+  website: https://www.safebreach.com
+  match_type: prefix
+  pattern: "safebreach-domain-verification="
+  impact: >-
+    Compromised credentials expose breach and attack simulation results showing exactly which security controls failed and which attack techniques succeed against the org's defenses
+
+- name: Sophos
+  category: security
+  description: Endpoint protection, firewall, and managed threat detection platform
+  website: https://www.sophos.com
+  match_type: prefix
+  pattern: "sophos-domain-verification="
+  impact: >-
+    Compromised credentials allow modifying endpoint protection policies, whitelisting malware, accessing security event logs, and disabling threat protection across managed devices
+
+- name: Wiz
+  category: security
+  description: Cloud security posture management (CSPM) platform for AWS, Azure, and GCP
+  website: https://www.wiz.io
+  match_type: prefix
+  pattern: "wiz-domain-verification="
+  impact: >-
+    Compromised credentials expose cloud security findings across AWS/Azure/GCP , misconfigurations, exposed secrets, vulnerable workloads, and attack paths through the cloud environment
+
+- name: Zscaler
+  category: security
+  description: Cloud security platform providing zero trust network access and secure web gateway
+  website: https://www.zscaler.com
+  match_type: prefix
+  pattern: "zscaler-verification="
+  impact: >-
+    Compromised credentials allow modifying zero trust access policies, URL filtering rules, and DLP configurations , potentially opening network paths or disabling data loss controls
+
+# ── HR & Recruiting ─────────────────────────────────────────────────────────
+
+- name: SAP SuccessFactors
+  category: hr
+  description: Cloud-based human capital management (HCM) suite for HR, payroll, and talent management
+  website: https://www.sap.com/products/hcm.html
+  match_type: prefix
+  pattern: "successfactors-site-verification="
+  impact: >-
+    Compromised credentials expose employee PII, salary data, performance reviews, org charts, benefits enrollment, and payroll records across the entire workforce
+
+- name: BetterComp
+  category: hr
+  description: Compensation benchmarking and management platform for HR and total rewards teams
+  website: https://www.bettercomp.com
+  match_type: prefix
+  pattern: "bettercomp-verify="
+  impact: >-
+    Compromised credentials expose executive and employee compensation data, salary benchmarks, equity grants, and total rewards analyses
+
+# ── IT & Device Management ───────────────────────────────────────────────────
+
+- name: Cisco Intersight
+  category: it_management
+  description: Cloud-based infrastructure management for Cisco UCS, HyperFlex, and third-party servers
+  website: https://www.cisco.com/site/us/en/products/computing/hybrid-cloud-operations/intersight-platform/index.html
+  match_type: prefix
+  pattern: "intersight="
+  impact: >-
+    Compromised credentials grant access to infrastructure management , server inventory, firmware versions, hardware health, and the ability to modify server configurations
+
+- name: Jamf
+  category: it_management
+  description: Apple device management (MDM) platform for macOS, iOS, and tvOS fleet management
+  website: https://www.jamf.com
+  match_type: prefix
+  pattern: "jamf-site-verification="
+  impact: >-
+    Compromised credentials allow pushing MDM profiles and commands to the entire Mac/iOS fleet , installing software, wiping devices, accessing device locations, and deploying configuration changes
+
+- name: TeamViewer
+  category: it_management
+  description: Remote access and support platform for IT management and remote desktops
+  website: https://www.teamviewer.com
+  match_type: prefix
+  pattern: "teamviewer-sso-verification="
+  impact: >-
+    Compromised credentials enable remote access to managed endpoints , screen control, file transfer, and command execution on any device in the TeamViewer deployment
+
+- name: VMware Cloud
+  category: it_management
+  description: VMware cloud infrastructure services for hybrid and multi-cloud environments
+  website: https://www.vmware.com
+  match_type: prefix
+  pattern: "vmware-cloud-verification-"
+  impact: >-
+    Compromised credentials grant access to virtual machine management, vSphere environments, cloud infrastructure, and the ability to snapshot, clone, or destroy virtual machines
+
+# ── Workflow & Automation ────────────────────────────────────────────────────
+
+- name: Nintex
+  category: automation
+  description: Process automation and workflow management platform for document generation and digital forms
+  website: https://www.nintex.com
+  match_type: prefix
+  pattern: "nintex."
+  impact: >-
+    Compromised credentials expose automated business workflows, document templates with merge fields, and process automation that may handle sensitive data routing
+
+- name: Zapier
+  category: automation
+  description: No-code workflow automation connecting 6,000+ apps via triggers and actions
+  website: https://zapier.com
+  match_type: prefix
+  pattern: "zapier-domain-verification-challenge="
+  impact: >-
+    Compromised credentials expose all connected app integrations and their credentials , Zapier stores OAuth tokens for connected services, making it a pivot point to multiple SaaS platforms
+
+# ── Certificate Authorities & PKI ────────────────────────────────────────────
+
+- name: GlobalSign (alt)
+  category: pki
+  description: Certificate authority providing SSL/TLS, code signing, and digital identity certificates
+  website: https://www.globalsign.com
+  match_type: prefix
+  pattern: "_globalsign-domain-verification="
+  impact: >-
+    Dangling SaaS: attacker could potentially complete domain validation and issue TLS/SSL certificates for the domain, enabling man-in-the-middle attacks or code signing fraud
+
+- name: GlobalSign
+  category: pki
+  description: Certificate authority providing SSL/TLS, code signing, and digital identity certificates
+  website: https://www.globalsign.com
+  match_type: prefix
+  pattern: "globalsign-domain-verification="
+  impact: >-
+    Dangling SaaS: attacker could potentially complete domain validation and issue TLS/SSL certificates for the domain, enabling man-in-the-middle attacks or code signing fraud
+
+- name: IdenTrust
+  category: pki
+  description: Certificate authority specializing in digital identity for government and regulated industries
+  website: https://www.identrust.com
+  match_type: prefix
+  pattern: "identrust_validate="
+  impact: >-
+    Dangling SaaS: attacker could potentially complete domain validation and issue certificates, particularly dangerous for government and regulated industry domains where IdenTrust is a trusted CA
+
+# ── Email & Marketing ────────────────────────────────────────────────────────
+
+- name: Brevo
+  category: email
+  description: Email marketing and transactional email platform (formerly Sendinblue)
+  website: https://www.brevo.com
+  match_type: prefix
+  pattern: "brevo-code:"
+  impact: >-
+    Compromised credentials allow sending mass emails from the organization's verified domain that pass SPF/DKIM, accessing subscriber lists, and viewing campaign analytics with customer engagement data
+
+- name: Klaviyo
+  category: email
+  description: E-commerce email and SMS marketing automation platform
+  website: https://www.klaviyo.com
+  match_type: prefix
+  pattern: "klaviyo-site-verification="
+  impact: >-
+    Compromised credentials expose e-commerce customer lists with purchase history, email/SMS subscriber data, and the ability to send campaigns from the organization's domain
+
+- name: Mailchimp
+  category: email
+  description: Email marketing and audience management platform for newsletters and campaigns
+  website: https://mailchimp.com
+  match_type: spf_include
+  pattern: "servers.mcsv.net"
+  impact: >-
+    Compromised credentials expose mailing lists with subscriber data, allow sending phishing campaigns that pass email authentication, and reveal campaign analytics and audience demographics
+
+- name: Bananatag (Staffbase)
+  category: email
+  description: Internal communications and email tracking platform for employee engagement
+  website: https://bananatag.com
+  match_type: spf_include
+  pattern: "spf.bananatag.com"
+  impact: >-
+    Compromised credentials expose internal communications analytics , which employees opened emails, engagement metrics , and allow sending spoofed internal messages
+
+# ── CRM & Sales ──────────────────────────────────────────────────────────────
+
+- name: Salesforce
+  category: crm
+  description: CRM and cloud computing platform for sales, service, marketing, and custom applications
+  website: https://www.salesforce.com
+  match_type: spf_include
+  pattern: "_spf.salesforce.com"
+  impact: >-
+    Compromised credentials expose CRM data including customer records, sales opportunities, contracts, support cases, and custom objects , often the most sensitive business data repository in an organization
+
+- name: HubSpot
+  category: crm
+  description: CRM, marketing automation, sales, and customer service platform
+  website: https://www.hubspot.com
+  match_type: spf_include
+  pattern: "hubspot.com"
+  impact: >-
+    Compromised credentials expose marketing contacts, sales pipeline deals, customer support tickets, email templates, and the ability to send emails from the organization's connected domain
+
+# ── Cloud & Infrastructure ──────────────────────────────────────────────────
+
+- name: Amazon SES
+  category: cloud
+  description: Amazon Simple Email Service for transactional and marketing email delivery
+  website: https://aws.amazon.com/ses/
+  match_type: prefix
+  pattern: "amazonses:"
+  impact: >-
+    Compromised credentials allow sending email from the organization's domain via AWS SES that passes all authentication checks , enables highly convincing phishing at scale
+
+- name: CloudHealth
+  category: cloud
+  description: Multi-cloud cost management and optimization platform (VMware/Broadcom)
+  website: https://www.cloudhealthtech.com
+  match_type: prefix
+  pattern: "cloudhealth="
+  impact: >-
+    Compromised credentials expose multi-cloud cost data, resource inventories across AWS/Azure/GCP, reserved instance details, and spending patterns that reveal infrastructure scale and architecture
+
+- name: HashiCorp Cloud
+  category: cloud
+  description: HashiCorp Cloud Platform providing managed Terraform, Vault, Consul, and Packer
+  website: https://cloud.hashicorp.com
+  match_type: prefix
+  pattern: "hcp-domain-verification="
+  impact: >-
+    Compromised credentials expose Terraform state files (containing infrastructure secrets), Vault secret stores, Consul service mesh topology, and infrastructure-as-code configurations
+
+# ── Video & Conferencing ────────────────────────────────────────────────────
+
+- name: Zoom
+  category: video
+  description: Video conferencing and collaboration platform for meetings, webinars, and phone
+  website: https://zoom.us
+  match_type: prefix
+  pattern: "zoom-domain-verification="
+  impact: >-
+    Compromised credentials allow joining meetings, accessing cloud recordings and transcripts, viewing contact lists, and hosting meetings that appear to originate from the organization
+
+- name: Zoom (alt)
+  category: video
+  description: Zoom domain verification (alternate DNS record format)
+  website: https://zoom.us
+  match_type: prefix
+  pattern: "ZOOM_verify_"
+  impact: >-
+    Compromised credentials allow joining meetings, accessing cloud recordings and transcripts, viewing contact lists, and hosting meetings that appear to originate from the organization
+
+- name: LogMeIn
+  category: video
+  description: Remote work and collaboration platform (GoTo Meeting, GoTo Webinar, LastPass)
+  website: https://www.logmein.com
+  match_type: prefix
+  pattern: "logmein-verification-code="
+  impact: >-
+    Compromised credentials enable remote access to managed machines, access to recorded sessions, and the ability to host webinars or meetings appearing to be from the organization
+
+# ── Payments & Commerce ─────────────────────────────────────────────────────
+
+- name: Stripe
+  category: payments
+  description: Payment processing infrastructure for online businesses, handling credit cards and invoicing
+  website: https://stripe.com
+  match_type: prefix
+  pattern: "stripe-verification="
+  impact: >-
+    Compromised credentials expose payment data, customer billing information, transaction histories, connected bank accounts, and the ability to issue refunds or modify payment flows
+
+- name: Shopify
+  category: payments
+  description: E-commerce platform for online stores, payments, and retail point-of-sale
+  website: https://www.shopify.com
+  match_type: prefix
+  pattern: "shopify-verification-code="
+  impact: >-
+    Compromised credentials expose storefront data, customer orders with addresses, payment configurations, and the ability to modify the online store or redirect payments
+
+# ── Cloud Storage & File Sharing ─────────────────────────────────────────────
+
+- name: Box
+  category: storage
+  description: Cloud content management and file sharing platform with enterprise security controls
+  website: https://www.box.com
+  match_type: prefix
+  pattern: "box-domain-verification="
+  impact: >-
+    Compromised credentials expose shared files and folders , Box often stores contracts, financial documents, HR files, and legal materials with granular sharing that one compromised account can traverse
+
+- name: Dropbox
+  category: storage
+  description: Cloud file storage, synchronization, and collaboration platform
+  website: https://www.dropbox.com
+  match_type: prefix
+  pattern: "dropbox-domain-verification="
+  impact: >-
+    Compromised credentials expose synced files, shared folders, and team spaces , attacker can exfiltrate documents, plant malicious files that sync to other users, or access file version history
+
+# ── Project Management ───────────────────────────────────────────────────────
+
+- name: Monday.com
+  category: project_management
+  description: Work operating system for project management, workflows, and team collaboration
+  website: https://monday.com
+  match_type: prefix
+  pattern: "monday-com-verification="
+  impact: >-
+    Compromised credentials expose project boards, workflow automations, file attachments, and team communications across the organization's work management environment
+
+- name: Smartsheet
+  category: project_management
+  description: Enterprise work management platform for project tracking, automation, and reporting
+  website: https://www.smartsheet.com
+  match_type: prefix
+  pattern: "smartsheet-site-validation="
+  impact: >-
+    Compromised credentials expose project sheets, Gantt charts, dashboards, automated workflows, and attached files , Smartsheet often manages cross-functional projects with sensitive data
+
+# ── Design & Creative ────────────────────────────────────────────────────────
+
+- name: Adobe Sign
+  category: design
+  description: Electronic signature solution for document signing and approval workflows
+  website: https://www.adobe.com/sign.html
+  match_type: prefix
+  pattern: "adobe-sign-verification="
+  impact: >-
+    Compromised credentials allow sending signing requests from the organization's account, accessing completed agreements, and viewing audit trails of all signed documents
+
+- name: Canva
+  category: design
+  description: Online graphic design platform for presentations, social media, and marketing materials
+  website: https://www.canva.com
+  match_type: prefix
+  pattern: "canva-site-verification="
+  impact: >-
+    Compromised credentials expose brand kits, design templates, and team assets , attacker could create convincing branded phishing materials using the organization's actual visual identity
+
+- name: ElevenLabs
+  category: design
+  description: AI voice synthesis and text-to-speech platform for generating realistic audio
+  website: https://elevenlabs.io
+  match_type: prefix
+  pattern: "elevenlabs="
+  impact: >-
+    Compromised credentials allow generating voice deepfakes using any custom voice models the organization has trained, potentially impersonating executives or creating fraudulent audio
+
+# ── Social Media & Advertising ───────────────────────────────────────────────
+
+- name: Facebook (Meta)
+  category: social
+  description: Meta/Facebook domain verification for Business Manager, ads, and page management
+  website: https://www.facebook.com
+  match_type: prefix
+  pattern: "facebook-domain-verification="
+  impact: >-
+    Compromised credentials expose Meta Business Suite , ad accounts with payment methods, page admin access, audience data, and the ability to post or run ads as the organization
+
+- name: Meta Workplace
+  category: social
+  description: Enterprise collaboration platform by Meta for internal team communication
+  website: https://www.workplace.com
+  match_type: prefix
+  pattern: "workplace-domain-verification="
+  impact: >-
+    Compromised credentials expose internal enterprise social network content , employee discussions, group posts, announcements, and organizational communications
+
+- name: TikTok
+  category: social
+  description: TikTok for Business domain verification for ad accounts and commerce
+  website: https://www.tiktok.com
+  match_type: prefix
+  pattern: "tiktok-domain-verification="
+  impact: >-
+    Compromised credentials expose TikTok Business Center , ad accounts with budgets, audience targeting data, creator marketplace connections, and the ability to run campaigns as the org
+
+- name: TikTok Developers
+  category: social
+  description: TikTok developer platform for API access and app integrations
+  website: https://developers.tiktok.com
+  match_type: prefix
+  pattern: "tiktok-developers-site-verification="
+  impact: >-
+    Compromised credentials expose API access tokens, app configurations, and the ability to publish or modify apps associated with the organization's verified domain
+
+# ── Customer Support ─────────────────────────────────────────────────────────
+
+- name: Calendly
+  category: support
+  description: Scheduling and appointment booking platform for meetings and events
+  website: https://calendly.com
+  match_type: prefix
+  pattern: "calendly-site-verification="
+  impact: >-
+    Compromised credentials expose scheduling links, meeting types, integration credentials, and attendee data , can be used to schedule pretextual meetings impersonating the organization
+
+- name: Drift
+  category: support
+  description: Conversational marketing and AI chatbot platform for website visitor engagement
+  website: https://www.drift.com
+  match_type: prefix
+  pattern: "drift-domain-verification="
+  impact: >-
+    Compromised credentials allow deploying chatbots on the organization's website, accessing visitor conversations, lead data, and the ability to intercept customer interactions
+
+- name: Intercom
+  category: support
+  description: Customer messaging platform for support, engagement, and in-app communication
+  website: https://www.intercom.com
+  match_type: prefix
+  pattern: "intercom-domain-validation="
+  impact: >-
+    Compromised credentials expose customer support conversations, user data, help center content, and the ability to send messages to customers as the organization's support team
+
+# ── Networking & VPN ─────────────────────────────────────────────────────────
+
+- name: Tailscale
+  category: networking
+  description: Zero-config mesh VPN built on WireGuard for secure network connectivity
+  website: https://tailscale.com
+  match_type: prefix
+  pattern: "TAILSCALE-"
+  impact: >-
+    Compromised credentials grant access to the organization's mesh VPN , ability to reach internal services, see connected devices, and access resources as a trusted network node
+
+# ── Data Privacy & Connectivity ──────────────────────────────────────────────
+
+- name: LiveRamp
+  category: data
+  description: Data connectivity platform for identity resolution and audience matching across ad platforms
+  website: https://liveramp.com
+  match_type: prefix
+  pattern: "liveramp-site-verification="
+  impact: >-
+    Compromised credentials expose customer identity graphs, audience segments, and data clean room configurations , highly sensitive for organizations handling consumer data at scale
+
+# ── Asset Management ─────────────────────────────────────────────────────────
+
+- name: Flexera
+  category: asset_management
+  description: IT asset management and software license optimization platform
+  website: https://www.flexera.com
+  match_type: prefix
+  pattern: "flexera-domain-verification-"
+  impact: >-
+    Compromised credentials expose complete software inventory, license compliance data, SaaS usage analytics, and IT spending , a full map of the organization's technology stack
+
+# ── DNS & Network Management ─────────────────────────────────────────────────
+
+- name: Infoblox
+  category: networking
+  description: DNS, DHCP, and IP address management (DDI) platform for network infrastructure
+  website: https://www.infoblox.com
+  match_type: prefix
+  pattern: "infoblox-domain-mastery="
+  impact: >-
+    Compromised credentials expose DNS zone data, DHCP scopes, IP address allocations, and network topology , critical intelligence for lateral movement and internal reconnaissance
+
+# ── Status Pages ─────────────────────────────────────────────────────────────
+
+- name: Statuspage
+  category: monitoring
+  description: Incident communication and status page hosting platform (Atlassian)
+  website: https://www.atlassian.com/software/statuspage
+  match_type: prefix
+  pattern: "status-page-domain-verification="
+  impact: >-
+    Dangling SaaS: attacker could claim the domain and post fraudulent incident updates, misdirecting customers during real outages or creating fake incidents to damage reputation
+
+# ── Customer Experience ──────────────────────────────────────────────────────
+
+- name: Bazaarvoice
+  category: analytics
+  description: User-generated content platform for product reviews, ratings, and Q&A
+  website: https://www.bazaarvoice.com
+  match_type: prefix
+  pattern: "bv-domain-verification="
+  impact: >-
+    Compromised credentials expose customer reviews, ratings data, Q&A content, and the ability to manipulate product reviews or access customer sentiment analytics
+
+# ── Email Verification ───────────────────────────────────────────────────────
+
+- name: ProtonMail
+  category: email
+  description: End-to-end encrypted email service focused on privacy and security
+  website: https://protonmail.com
+  match_type: prefix
+  pattern: "protonmail-verification="
+  impact: >-
+    Compromised credentials expose encrypted email content, contacts, and calendar data , particularly sensitive given users chose ProtonMail specifically for privacy-critical communications
+
+# ── Remote Access ────────────────────────────────────────────────────────────
+
+- name: 1Password
+  category: security
+  description: Enterprise password manager and secrets management platform
+  website: https://1password.com
+  match_type: prefix
+  pattern: "1password-site-verification="
+  impact: >-
+    Compromised admin credentials expose shared vaults containing passwords, API keys, SSH keys, secure notes, and documents , a single point of compromise for all stored credentials
+# ── CRM & Sales (additions) ─────────────────────────────────────────────────
+
+- name: Salesforce Marketing Cloud
+  category: crm
+  description: Enterprise marketing automation platform for email, mobile, social, and advertising campaigns
+  website: https://www.salesforce.com/products/marketing-cloud/
+  match_type: prefix
+  pattern: "SFMC-"
+  impact: >-
+    Compromised credentials allow sending mass emails from the organization's domain, accessing customer journey data, subscriber lists, and marketing automation workflows
+
+- name: Salesforce Pardot
+  category: crm
+  description: B2B marketing automation for lead generation, email campaigns, and sales alignment
+  website: https://www.salesforce.com/products/marketing-cloud/marketing-automation/
+  match_type: regex
+  pattern: "^pardot\\d+="
+  impact: >-
+    Compromised credentials expose B2B marketing leads, prospect scoring data, email campaign content, and allow sending lead-nurture emails appearing to originate from the organization
+
+- name: HubSpot Domain
+  category: crm
+  description: HubSpot CRM domain verification for marketing, sales, and service tools
+  website: https://www.hubspot.com
+  match_type: prefix
+  pattern: "hubspot-domain-verification="
+  impact: >-
+    Compromised credentials expose CRM contacts, marketing landing pages, email templates, sales sequences, and the ability to send authenticated emails from the organization's domain
+
+- name: HubSpot Developer
+  category: crm
+  description: HubSpot developer platform for building integrations and marketplace apps
+  website: https://developers.hubspot.com
+  match_type: prefix
+  pattern: "hubspot-developer-verification="
+  impact: >-
+    Compromised credentials allow publishing or modifying HubSpot marketplace apps under the organization's verified identity, potentially compromising downstream customers
+
+# ── Collaboration (additions) ────────────────────────────────────────────────
+
+- name: Atlassian Sending Domain
+  category: collaboration
+  description: Atlassian email sending domain verification for notifications from Jira, Confluence, etc.
+  website: https://www.atlassian.com
+  match_type: prefix
+  pattern: "atlassian-sending-domain-verification="
+  impact: >-
+    Dangling SaaS: attacker could spoof Atlassian notification emails (Jira ticket updates, Confluence page changes) appearing to originate from the organization's domain for phishing
+
+- name: Favro
+  category: collaboration
+  description: Agile project management and collaboration platform for planning and tracking work
+  website: https://www.favro.com
+  match_type: prefix
+  pattern: "favro-verification="
+  impact: >-
+    Compromised credentials expose agile boards, sprint backlogs, project plans, and collaborative documents across the organization's product and engineering teams
+
+- name: ProdPad
+  category: collaboration
+  description: Product management and roadmapping tool for prioritization and feedback collection
+  website: https://www.prodpad.com
+  match_type: prefix
+  pattern: "prodpad-domain-verification="
+  impact: >-
+    Compromised credentials expose product roadmaps, feature prioritization data, customer feedback, and strategic product planning , revealing competitive intelligence
+
+- name: reMarkable
+  category: collaboration
+  description: E-paper tablet with cloud sync for notes, documents, and PDFs
+  website: https://remarkable.com
+  match_type: prefix
+  pattern: "remarkable-domain-verification="
+  impact: >-
+    Compromised credentials expose synced handwritten notes, annotated PDFs, and documents from executives and employees who use reMarkable tablets for note-taking in meetings
+
+# ── Communication (additions) ────────────────────────────────────────────────
+
+- name: Pexip
+  category: communication
+  description: Self-hosted and cloud video conferencing infrastructure for enterprises and government
+  website: https://www.pexip.com
+  match_type: prefix
+  pattern: "pexip-ms-tenant-domain-verification="
+  impact: >-
+    Compromised credentials allow joining or creating video conferences, accessing meeting recordings, and potentially intercepting government or enterprise video communications
+
+# ── Identity (additions) ─────────────────────────────────────────────────────
+
+- name: Auth0
+  category: identity
+  description: Identity platform for authentication and authorization (owned by Okta)
+  website: https://auth0.com
+  match_type: prefix
+  pattern: "auth0-domain-verification="
+  impact: >-
+    Compromised admin credentials expose the authentication layer , user databases, login flows, social connections, and the ability to modify authentication rules affecting all applications
+
+- name: Zoho
+  category: identity
+  description: Business suite including email, CRM, projects, and 45+ integrated applications
+  website: https://www.zoho.com
+  match_type: prefix
+  pattern: "zoho-verification="
+  impact: >-
+    Compromised credentials expose Zoho's integrated suite , email (Zoho Mail), CRM data, financial records (Zoho Books), HR data, and 45+ connected applications under one login
+
+# ── DevOps & Developer Tools (additions) ─────────────────────────────────────
+
+- name: Confluent
+  category: devtools
+  description: Data streaming platform built on Apache Kafka for real-time event processing
+  website: https://www.confluent.io
+  match_type: prefix
+  pattern: "confluent-verification="
+  impact: >-
+    Compromised credentials expose Apache Kafka streaming configurations, topic data, schema registries, and real-time data pipelines processing business events
+
+- name: GitHub (alt)
+  category: devtools
+  description: GitHub domain verification (alternate record format)
+  website: https://github.com
+  match_type: prefix
+  pattern: "github-verification="
+  impact: >-
+    Compromised credentials expose source code, CI/CD secrets in Actions workflows, private repositories, deployment keys, and the ability to push malicious code
+
+- name: Heroku
+  category: devtools
+  description: Cloud application platform (PaaS) for deploying, managing, and scaling web apps
+  website: https://www.heroku.com
+  match_type: prefix
+  pattern: "heroku-domain-verification="
+  impact: >-
+    Compromised credentials expose deployed applications, environment variables containing secrets (DATABASE_URL, API keys), application logs, and deployment pipelines
+
+- name: HeyGen
+  category: devtools
+  description: AI video generation platform for creating avatar-based video content
+  website: https://www.heygen.com
+  match_type: prefix
+  pattern: "heygen-verification="
+  impact: >-
+    Compromised credentials allow creating AI-generated videos using the organization's custom avatars and voice clones for deepfake impersonation
+
+- name: Windsurf
+  category: devtools
+  description: AI-powered code editor by Codeium with intelligent code completion and chat
+  website: https://codeium.com/windsurf
+  match_type: prefix
+  pattern: "windsurf-verification="
+  impact: >-
+    Compromised credentials expose shared code contexts, AI-assisted coding history, and team development configurations in the Windsurf IDE
+
+# ── Security (additions) ─────────────────────────────────────────────────────
+
+- name: DataDome
+  category: security
+  description: Real-time bot protection and online fraud prevention platform
+  website: https://datadome.co
+  match_type: prefix
+  pattern: "datadome-domain-verify="
+  impact: >-
+    Compromised credentials expose bot traffic analytics, protection rules, and the intelligence needed to craft bots that bypass the organization's fraud detection
+
+- name: KnowBe4
+  category: security
+  description: Security awareness training and simulated phishing platform
+  website: https://www.knowbe4.com
+  match_type: prefix
+  pattern: "knowbe4-site-verification="
+  impact: >-
+    Compromised credentials expose phishing simulation results , which employees clicked, failure rates by department, training completion , revealing the most vulnerable attack targets
+
+- name: SpyCloud
+  category: security
+  description: Account takeover prevention using darknet credential monitoring
+  website: https://spycloud.com
+  match_type: prefix
+  pattern: "spycloud-domain-verification="
+  impact: >-
+    Compromised credentials expose darknet monitoring data showing which employee accounts were found in breaches, what passwords were exposed, and breach timeline data
+
+- name: Trend Micro
+  category: security
+  description: Cybersecurity platform for endpoint, network, cloud, and email security
+  website: https://www.trendmicro.com
+  match_type: prefix
+  pattern: "trend-micro-v1-domain-verification."
+  impact: >-
+    Compromised credentials expose security event data, email filtering rules, endpoint protection configurations, and the ability to modify or disable security policies
+
+# ── IT Management (additions) ────────────────────────────────────────────────
+
+- name: Appspace
+  category: it_management
+  description: Workplace experience platform for digital signage, communications, and space management
+  website: https://www.appspace.com
+  match_type: prefix
+  pattern: "appspace-domain-verification="
+  impact: >-
+    Compromised credentials allow publishing content to digital signage, internal communication screens, and workplace displays , could display misinformation or offensive content organization-wide
+
+- name: Citrix
+  category: it_management
+  description: Virtual desktop infrastructure (VDI), app delivery, and secure workspace platform
+  website: https://www.citrix.com
+  match_type: prefix
+  pattern: "citrix-verification-code="
+  impact: >-
+    Compromised credentials grant access to virtual desktops and published applications , effectively full access to the internal corporate environment through the Citrix gateway
+
+- name: Dell Technologies
+  category: it_management
+  description: Dell enterprise IT infrastructure and device management services
+  website: https://www.dell.com
+  match_type: prefix
+  pattern: "dell-technologies-domain-verification="
+  impact: >-
+    Compromised credentials expose hardware asset inventory, warranty information, support cases, and device management portals across the Dell infrastructure
+
+- name: HPE GreenLake
+  category: it_management
+  description: HPE's hybrid cloud platform for on-premises and cloud infrastructure management
+  website: https://www.hpe.com/greenlake
+  match_type: prefix
+  pattern: "hpe-greenlake-domain-verification="
+  impact: >-
+    Compromised credentials expose hybrid cloud management dashboards, compute/storage capacity data, and infrastructure provisioning controls across HPE environments
+
+- name: Parallels
+  category: it_management
+  description: Virtualization and remote application delivery platform for desktop and server environments
+  website: https://www.parallels.com
+  match_type: prefix
+  pattern: "parallels-domain-verification="
+  impact: >-
+    Compromised credentials allow accessing remote application sessions, virtual desktop environments, and potentially the internal resources available through Parallels RAS
+
+- name: Samsung Knox
+  category: it_management
+  description: Samsung enterprise mobile security and device management platform
+  website: https://www.samsungknox.com
+  match_type: prefix
+  pattern: "samsung-domain-verification="
+  impact: >-
+    Compromised credentials allow pushing policies to Samsung device fleets, installing applications, wiping devices, and accessing device location and inventory data
+
+# ── Email & Marketing (additions) ────────────────────────────────────────────
+
+- name: Emma (e2ma)
+  category: email
+  description: Email marketing platform for branded campaigns and audience segmentation
+  website: https://myemma.com
+  match_type: prefix
+  pattern: "e2ma-verification="
+  impact: >-
+    Compromised credentials allow sending branded email campaigns from the organization's domain, accessing subscriber lists with PII, and viewing engagement analytics
+
+- name: Mailchimp Mandrill
+  category: email
+  description: Transactional email API service by Mailchimp for automated and trigger-based emails
+  website: https://mandrillapp.com
+  match_type: prefix
+  pattern: "mandrill_verify."
+  impact: >-
+    Compromised credentials allow sending transactional emails (password resets, order confirmations, invoices) from the organization's domain , extremely effective for credential phishing
+
+# ── Analytics (additions) ────────────────────────────────────────────────────
+
+- name: Adobe Experience Platform
+  category: analytics
+  description: Adobe's data collection and tag management for web analytics and marketing technologies
+  website: https://www.adobe.com/experience-platform.html
+  match_type: prefix
+  pattern: "dtm-domain-verification="
+  impact: >-
+    Compromised credentials expose web analytics data, tag management configurations, customer journey data, and the ability to inject or modify tracking scripts on the organization's properties
+
+- name: Google Workspace Recovery
+  category: analytics
+  description: Google Workspace account recovery domain verification for admin console access
+  website: https://workspace.google.com
+  match_type: prefix
+  pattern: "google-gws-recovery-domain-verification="
+  impact: >-
+    Dangling SaaS: lingering recovery verification could potentially be leveraged in account recovery attacks against Google Workspace admin accounts
+
+- name: Pinterest
+  category: analytics
+  description: Visual discovery and bookmarking platform with business advertising and analytics
+  website: https://business.pinterest.com
+  match_type: prefix
+  pattern: "pinterest-site-verification="
+  impact: >-
+    Compromised credentials expose Pinterest business analytics, ad campaigns with targeting data, audience insights, and the ability to run promoted pins as the organization
+
+- name: Yahoo
+  category: analytics
+  description: Yahoo domain verification for email, advertising, and web properties
+  website: https://www.yahoo.com
+  match_type: prefix
+  pattern: "yahoo-verification-key="
+  impact: >-
+    Dangling SaaS: lingering verification record signals Yahoo service usage; compromised Yahoo credentials could expose legacy email, ad accounts, or domain management
+
+- name: Yandex
+  category: analytics
+  description: Russian search engine and web services including Yandex Webmaster and Mail
+  website: https://webmaster.yandex.com
+  match_type: prefix
+  pattern: "yandex-verification:"
+  impact: >-
+    Compromised credentials expose Yandex Webmaster search analytics, indexing data, and site configuration , particularly relevant for organizations with Russian-market presence
+
+# ── CMS & Web ───────────────────────────────────────────────────────────────
+
+- name: Sitecore
+  category: cms
+  description: Enterprise content management system (CMS) and digital experience platform
+  website: https://www.sitecore.com
+  match_type: prefix
+  pattern: "sitecore-domain-verification="
+  impact: >-
+    Compromised credentials grant access to the content management system , ability to modify website content, inject malicious scripts, access customer personalization data, and alter digital experiences
+
+# ── Cloud Storage (additions) ────────────────────────────────────────────────
+
+- name: LucidLink
+  category: storage
+  description: Cloud-native NAS for creative teams enabling real-time collaboration on large files
+  website: https://www.lucidlink.com
+  match_type: prefix
+  pattern: "lucidlink-verification="
+  impact: >-
+    Compromised credentials expose cloud NAS file systems , creative assets, video production files, design files, and other large media that teams collaborate on in real-time
+
+# ── IoT & Hardware ───────────────────────────────────────────────────────────
+
+- name: Schneider EcoStruxure
+  category: iot
+  description: Schneider Electric's IoT platform for building management and energy infrastructure
+  website: https://www.se.com/ecostruxure
+  match_type: prefix
+  pattern: "ecostruxure-it-verification="
+  impact: >-
+    Compromised credentials expose building management systems, energy monitoring, power distribution data, and IoT/OT infrastructure controls , potential for physical-world impact
+
+# ── Fintech & Payments (additions) ───────────────────────────────────────────
+
+- name: Bill One
+  category: payments
+  description: Cloud-based invoice management and accounts payable automation platform (Sansan)
+  website: https://bill-one.com
+  match_type: prefix
+  pattern: "bill-one-domain-verification="
+  impact: >-
+    Compromised credentials expose invoice data, payment records, vendor information, and accounts payable workflows , enables invoice fraud or payment redirection
+
+# ── HR & Recruiting (additions) ──────────────────────────────────────────────
+
+- name: Astro
+  category: hr
+  description: AI recruiting assistant and scheduling platform for talent acquisition teams
+  website: https://www.astro.ai
+  match_type: prefix
+  pattern: "astro-domain-verification="
+  impact: >-
+    Compromised credentials expose candidate PII, interview schedules, recruiting pipeline data, offer details, and salary information across the hiring process
+
+# ── Document Management ──────────────────────────────────────────────────────
+
+- name: Foxit
+  category: collaboration
+  description: PDF editor and document management platform for enterprise document workflows
+  website: https://www.foxit.com
+  match_type: prefix
+  pattern: "Foxit-domain-verification="
+  impact: >-
+    Compromised credentials expose shared PDF documents, e-signature workflows, document annotations, and collaboration spaces containing contracts and legal materials
+
+- name: Nitro
+  category: collaboration
+  description: PDF productivity suite with e-signature, document conversion, and analytics
+  website: https://www.gonitro.com
+  match_type: prefix
+  pattern: "nitro-verification-code="
+  impact: >-
+    Compromised credentials expose signed documents, PDF conversions, analytics on document usage, and the ability to send e-signature requests appearing to be from the organization
+
+- name: PandaDoc
+  category: collaboration
+  description: Document automation platform for proposals, quotes, contracts, and e-signatures
+  website: https://www.pandadoc.com
+  match_type: prefix
+  pattern: "pandadoc-domain-verification="
+  impact: >-
+    Compromised credentials expose proposals, quotes, contracts with pricing, and e-signature workflows , enables contract fraud, price manipulation, or document tampering
+
+# ── Transportation & Logistics ───────────────────────────────────────────────
+
+- name: Uber for Business
+  category: transportation
+  description: Corporate travel, meal delivery, and freight logistics platform
+  website: https://www.uber.com/business
+  match_type: prefix
+  pattern: "uber-domain-verification="
+  impact: >-
+    Compromised credentials expose corporate travel data , employee trip histories, home/work addresses, expense patterns, and ride receipts with location data
+
+# ── Gifting & Engagement ─────────────────────────────────────────────────────
+
+- name: Reachdesk
+  category: marketing
+  description: B2B direct mail and gifting platform for sales engagement and account-based marketing
+  website: https://reachdesk.com
+  match_type: prefix
+  pattern: "reachdesk-verification="
+  impact: >-
+    Compromised credentials expose corporate gifting campaigns, recipient addresses, budget allocations, and the ability to send physical packages appearing to be from the organization
+
+# ── Insurance & Compliance ───────────────────────────────────────────────────
+
+- name: Zywave
+  category: compliance
+  description: Insurance technology platform for quoting, compliance, and client management
+  website: https://www.zywave.com
+  match_type: prefix
+  pattern: "zywave-domain-verification="
+  impact: >-
+    Compromised credentials expose insurance policy data, compliance documents, client risk profiles, and benefits administration records
+
+# ── Gaming & 3D ──────────────────────────────────────────────────────────────
+
+- name: Unity
+  category: devtools
+  description: Game engine and real-time 3D development platform with SSO integration
+  website: https://unity.com
+  match_type: prefix
+  pattern: "unity-sso-verification="
+  impact: >-
+    Compromised credentials expose game development projects, 3D assets, analytics data, and license management for the organization's Unity-based products
+
+# ── Cloud (additions) ────────────────────────────────────────────────────────
+
+- name: Alibaba Cloud
+  category: cloud
+  description: Alibaba's cloud computing platform (Aliyun) for IaaS, PaaS, and enterprise services
+  website: https://www.alibabacloud.com
+  match_type: prefix
+  pattern: "aliyun-site-verification="
+  impact: >-
+    Compromised credentials grant access to Alibaba Cloud resources , compute instances, databases, storage buckets, and management consoles for the organization's Chinese and APAC infrastructure
+
+# ── Misc SaaS ────────────────────────────────────────────────────────────────
+
+- name: Bluebeam
+  category: collaboration
+  description: PDF markup and collaboration tool for architecture, engineering, and construction (AEC)
+  website: https://www.bluebeam.com
+  match_type: prefix
+  pattern: "bluebeam-verification="
+  impact: >-
+    Compromised credentials expose construction documents, architectural blueprints, RFI responses, punch lists, and project markups containing building specifications and costs
+
+- name: Extensis
+  category: design
+  description: Font management and digital asset management for creative and brand teams
+  website: https://www.extensis.com
+  match_type: prefix
+  pattern: "extensis-domain-verification="
+  impact: >-
+    Compromised credentials expose licensed font libraries, brand asset collections, and digital asset metadata , enables access to proprietary creative resources
+
+- name: QQ Mail
+  category: email
+  description: Tencent QQ Mail enterprise email service popular in China
+  website: https://mail.qq.com
+  match_type: prefix
+  pattern: "qqmail-site-verification="
+  impact: >-
+    Compromised credentials expose email communications in Tencent's ecosystem, particularly for organizations with Chinese business operations , contacts, messages, and attachments
+
+- name: Mail.ru
+  category: email
+  description: Mail.ru (VK) email and web services, major platform in Russian-speaking markets
+  website: https://mail.ru
+  match_type: prefix
+  pattern: "mailru-verification:"
+  impact: >-
+    Compromised credentials expose email and associated VK/Mail.ru services, particularly relevant for organizations with Russian or CIS business operations
+# ── Identity & SSO (university scan additions) ──────────────────────────────
+
+- name: Bitwarden
+  category: security
+  description: Open-source password manager with enterprise self-hosting and SSO support
+  website: https://bitwarden.com
+  match_type: prefix
+  pattern: "bw="
+  impact: >-
+    Compromised credentials expose password vaults containing stored passwords, secure notes, credit card data, and identity documents , a cascading compromise affecting all stored credentials
+
+- name: LinkedIn
+  category: identity
+  description: Professional networking platform with business pages and talent solutions
+  website: https://www.linkedin.com
+  match_type: prefix
+  pattern: "linkedin-site-verification="
+  impact: >-
+    Compromised admin credentials expose LinkedIn company page management, employee data, recruiter accounts with InMail access, and the ability to post as the organization
+
+# ── Certificate Authorities (university scan additions) ──────────────────────
+
+- name: HARICA
+  category: pki
+  description: Hellenic Academic and Research Institutions Certificate Authority (EU academic PKI)
+  website: https://www.harica.gr
+  match_type: prefix
+  pattern: "HARICA-"
+  impact: >-
+    Dangling SaaS: attacker could potentially complete domain validation and issue TLS certificates through the HARICA CA, trusted in European academic and research networks
+
+- name: QuoVadis
+  category: pki
+  description: Certificate authority (now DigiCert) used widely by UK and EU institutions
+  website: https://www.quovadisglobal.com
+  match_type: prefix
+  pattern: "QuoVadis="
+  impact: >-
+    Dangling SaaS: attacker could potentially complete domain validation and issue TLS certificates through QuoVadis/DigiCert, trusted in UK and EU institutional contexts
+
+# ── Marketing & CRM (university scan additions) ─────────────────────────────
+
+- name: Microsoft Dynamics 365
+  category: crm
+  description: Microsoft's ERP and CRM platform for sales, marketing, finance, and operations
+  website: https://dynamics.microsoft.com
+  match_type: prefix
+  pattern: "d365mktkey="
+  impact: >-
+    Compromised credentials expose CRM customer records, ERP financial data, supply chain information, and marketing campaign data , often containing the organization's most sensitive business operations data
+
+- name: Mentimeter
+  category: collaboration
+  description: Interactive presentation platform with live polls, quizzes, and audience Q&A
+  website: https://www.mentimeter.com
+  match_type: prefix
+  pattern: "mentimeter-"
+  impact: >-
+    Compromised credentials expose presentation content, audience poll responses, quiz results, and attendee data from internal meetings and events
+
+- name: MailerLite
+  category: email
+  description: Email marketing platform for newsletters, landing pages, and subscriber management
+  website: https://www.mailerlite.com
+  match_type: prefix
+  pattern: "mailerlite-domain-verification="
+  impact: >-
+    Compromised credentials allow sending email campaigns from the organization's domain, accessing subscriber lists, and viewing engagement data with customer email addresses
+
+# ── Security (university scan additions) ─────────────────────────────────────
+
+- name: Access (formerly Cyolo)
+  category: security
+  description: Zero trust access management platform for secure connectivity without VPNs
+  website: https://www.access.run
+  match_type: prefix
+  pattern: "access-domain-verification="
+  impact: >-
+    Compromised credentials allow modifying zero trust access policies, potentially granting unauthorized remote access to internal resources without VPN
+
+- name: Fortinet FortiPhish
+  category: security
+  description: Phishing simulation and security awareness testing tool from Fortinet
+  website: https://www.fortinet.com
+  match_type: prefix
+  pattern: "fortinet-fortiphish-site-verification="
+  impact: >-
+    Compromised credentials expose phishing simulation results by employee and department, training completion rates, and the organization's most click-prone users
+
+- name: Mistral AI
+  category: devtools
+  description: European AI company providing open and commercial large language models
+  website: https://mistral.ai
+  match_type: prefix
+  pattern: "mistral-domain-verification="
+  impact: >-
+    Compromised credentials expose AI model configurations, API usage, conversation data, and billing , attacker could abuse API access or access proprietary fine-tuning data
+
+# ── Collaboration (university scan additions) ────────────────────────────────
+
+- name: Formstack
+  category: collaboration
+  description: Online form builder with workflow automation and document generation
+  website: https://www.formstack.com
+  match_type: prefix
+  pattern: "formstack-domain-verification="
+  impact: >-
+    Compromised credentials expose form submissions containing whatever data the org collects , applications, surveys, payment info, PII , plus workflow automations processing that data
+
+- name: MindManager
+  category: collaboration
+  description: Mind mapping and project visualization software for strategy and planning
+  website: https://www.mindmanager.com
+  match_type: prefix
+  pattern: "mindmanager-verification="
+  impact: >-
+    Compromised credentials expose mind maps and visual diagrams containing strategic plans, project structures, brainstorming sessions, and organizational knowledge maps
+
+- name: Quickbase
+  category: collaboration
+  description: Low-code application platform for building custom business apps and workflows
+  website: https://www.quickbase.com
+  match_type: prefix
+  pattern: "quickbase-site-verification-"
+  impact: >-
+    Compromised credentials expose custom business applications and their databases , Quickbase apps often contain operational data, inventory, project tracking, and business process information
+
+# ── Email (university scan additions) ────────────────────────────────────────
+
+- name: Everlytic
+  category: email
+  description: South African email, SMS, and push notification marketing platform
+  website: https://www.everlytic.com
+  match_type: prefix
+  pattern: "everlytic-site-verification="
+  impact: >-
+    Compromised credentials allow sending email and SMS campaigns from the organization's identity, accessing subscriber databases, and viewing communication analytics
+
+# ── Cloud (university scan additions) ────────────────────────────────────────
+
+- name: Cloudflare
+  category: cloud
+  description: CDN, DDoS protection, DNS, and web application security platform
+  website: https://www.cloudflare.com
+  match_type: prefix
+  pattern: "cloudflare-verify."
+  impact: >-
+    Compromised credentials expose DNS management, firewall rules, DDoS settings, and cached content , attacker could redirect traffic, disable protections, or intercept requests
+# ── Hosting & CMS ────────────────────────────────────────────────────────────
+
+- name: WP Engine
+  category: cms
+  description: Managed WordPress hosting platform with enterprise security and performance
+  website: https://wpengine.com
+  match_type: prefix
+  pattern: "wpe-verification="
+  impact: >-
+    Compromised credentials grant access to WordPress site management , database access, file system, plugin installation, and the ability to inject malicious code into the organization's websites
+
+# ── HR & Workforce ──────────────────────────────────────────────────────────
+
+- name: Rippling
+  category: hr
+  description: Unified HR, IT, and finance platform for employee management and device control
+  website: https://www.rippling.com
+  match_type: prefix
+  pattern: "rippling-domain-verification="
+  impact: >-
+    Compromised credentials expose unified HR/IT/finance data , employee SSNs, salary info, bank accounts for direct deposit, device inventory, and the ability to provision or deprovision access
+
+- name: Remote
+  category: hr
+  description: Global HR platform for hiring, payroll, and compliance for remote teams worldwide
+  website: https://remote.com
+  match_type: prefix
+  pattern: "remote-domain-verification="
+  impact: >-
+    Compromised credentials expose international employee contracts, payroll data across jurisdictions, tax documents, benefits enrollment, and global workforce PII
+
+- name: Gem
+  category: hr
+  description: Recruiting CRM and talent engagement platform for sourcing and pipeline management
+  website: https://www.gem.com
+  match_type: prefix
+  pattern: "gem-domain-verification="
+  impact: >-
+    Compromised credentials expose recruiting pipeline data , candidate profiles, interview feedback, offer details, sourcing strategies, and outreach templates with contact information
+
+# ── IT Asset Management ─────────────────────────────────────────────────────
+
+- name: Reftab
+  category: asset_management
+  description: IT asset tracking and management platform for hardware and equipment
+  website: https://www.reftab.com
+  match_type: prefix
+  pattern: "reftab-domain-verification="
+  impact: >-
+    Compromised credentials expose IT asset inventory , device serial numbers, assigned users, warranty data, and physical location of hardware assets
+
+# ── Security (sector scan additions) ─────────────────────────────────────────
+
+- name: SentinelOne
+  category: security
+  description: Autonomous endpoint detection and response (EDR) platform with AI-driven threat hunting
+  website: https://www.sentinelone.com
+  match_type: prefix
+  pattern: "sentinelone-domain-verification="
+  impact: >-
+    Compromised credentials expose endpoint telemetry, threat detections, incident timelines, and the ability to modify protection policies or whitelist malicious binaries
+
+- name: New Relic
+  category: monitoring
+  description: Full-stack observability platform for application performance monitoring and infrastructure
+  website: https://newrelic.com
+  match_type: prefix
+  pattern: "new-relic-domain-verification="
+  impact: >-
+    Compromised credentials expose application performance data, error logs, distributed traces, and infrastructure metrics , revealing architecture, dependencies, and potential weaknesses
+
+- name: Keybase
+  category: security
+  description: Encrypted messaging and identity verification platform with public key directory
+  website: https://keybase.io
+  match_type: prefix
+  pattern: "keybase-site-verification="
+  impact: >-
+    Compromised credentials expose encrypted chat messages, team channels, file shares, and cryptographic key material used for identity verification
+
+# ── Compliance & Quality ────────────────────────────────────────────────────
+
+- name: ZenQMS
+  category: compliance
+  description: Quality management system (QMS) for life sciences, pharma, and regulated industries
+  website: https://www.zenqms.com
+  match_type: prefix
+  pattern: "zenqms-domain-verification="
+  impact: >-
+    Compromised credentials expose quality management documents, SOPs, audit trails, CAPA records, and regulatory compliance documentation in life sciences environments
+
+# ── AI & Automation ──────────────────────────────────────────────────────────
+
+- name: Tollbit
+  category: devtools
+  description: AI content licensing and access control platform for publishers
+  website: https://tollbit.com
+  match_type: prefix
+  pattern: "tollbit-domain-verification="
+  impact: >-
+    Compromised credentials allow modifying AI content licensing settings, access control rules, and crawling permissions for the organization's published content
+
+- name: Lovable
+  category: devtools
+  description: AI-powered web application builder for rapid full-stack prototyping
+  website: https://lovable.dev
+  match_type: prefix
+  pattern: "lovable_verification="
+  impact: >-
+    Compromised credentials expose AI-generated web applications, deployment configurations, and connected service credentials used in the build process
+
+- name: ClickUp
+  category: collaboration
+  description: All-in-one project management and productivity platform for tasks, docs, and goals
+  website: https://clickup.com
+  match_type: prefix
+  pattern: "clickup-verification="
+  impact: >-
+    Compromised credentials expose task management data, project docs, goals, time tracking, and team communications across the organization's productivity platform
+
+# ── Communication (sector scan additions) ────────────────────────────────────
+
+- name: Sinch
+  category: communication
+  description: Cloud communications platform for messaging, voice, and video APIs
+  website: https://www.sinch.com
+  match_type: prefix
+  pattern: "sinch-domain-verification="
+  impact: >-
+    Compromised credentials allow sending SMS and voice messages from the organization's verified numbers , enables smishing and vishing using legitimate caller IDs
+
+- name: Slido
+  category: communication
+  description: Audience interaction platform for polls, Q&A, and quizzes at events (Cisco/Webex)
+  website: https://www.slido.com
+  match_type: prefix
+  pattern: "slido-domain-verification="
+  impact: >-
+    Compromised credentials expose event interaction data, audience poll responses, Q&A submissions, and the ability to create events appearing to be from the organization
+
+# ── Developer Tools (sector scan additions) ──────────────────────────────────
+
+- name: Brave
+  category: devtools
+  description: Privacy-focused web browser with publisher verification for Brave Rewards/BAT
+  website: https://brave.com
+  match_type: prefix
+  pattern: "brave-ledger-verification="
+  impact: >-
+    Dangling SaaS: attacker could claim the domain as a Brave verified publisher, receiving Basic Attention Token (BAT) cryptocurrency tips intended for the organization
+
+- name: Coursera
+  category: devtools
+  description: Online learning platform for courses, certificates, and degree programs
+  website: https://www.coursera.org
+  match_type: prefix
+  pattern: "coursera-domain-verification="
+  impact: >-
+    Compromised credentials expose employee learning records, course enrollments, skill assessments, and the organization's L&D program data
+
+- name: Make (Integromat)
+  category: automation
+  description: Visual workflow automation platform connecting apps and services with complex logic
+  website: https://www.make.com
+  match_type: prefix
+  pattern: "make-domain-verification="
+  impact: >-
+    Compromised credentials expose all connected app integrations with stored OAuth tokens, automated workflows processing business data, and the ability to create data exfiltration scenarios
+
+# ── Delivery & Transportation ────────────────────────────────────────────────
+
+- name: DoorDash
+  category: transportation
+  description: Food delivery and logistics platform with DoorDash for Business corporate accounts
+  website: https://www.doordash.com
+  match_type: prefix
+  pattern: "doordash-verification="
+  impact: >-
+    Compromised credentials expose DoorDash for Business data , employee names, delivery addresses, meal program budgets, and order history with location information
+
+# ── Testing & QA ─────────────────────────────────────────────────────────────
+
+- name: Applause
+  category: devtools
+  description: Crowdsourced testing and digital quality platform for functional and usability testing
+  website: https://www.applause.com
+  match_type: prefix
+  pattern: "applause-verification"
+  impact: >-
+    Compromised credentials expose crowdsourced testing results, bug reports for pre-release software, QA feedback, and potentially unreleased product details
+
+# ── Legal Tech ───────────────────────────────────────────────────────────────
+
+- name: Apperio
+  category: compliance
+  description: Legal spend analytics and matter management platform for corporate legal departments
+  website: https://www.apperio.com
+  match_type: prefix
+  pattern: "apperio-domain-verification="
+  impact: >-
+    Compromised credentials expose legal spend data, outside counsel invoices, matter details, and budget tracking , revealing the organization's legal strategy and disputes
+
+- name: Bundledocs
+  category: collaboration
+  description: Legal document bundling and production platform for litigation and court filings
+  website: https://www.bundledocs.com
+  match_type: prefix
+  pattern: "bundledocs-domain-verification="
+  impact: >-
+    Compromised credentials expose legal document bundles prepared for litigation, court filings, evidence packages, and case materials containing privileged information
+
+# ── Translation ──────────────────────────────────────────────────────────────
+
+- name: DeepL
+  category: collaboration
+  description: AI-powered translation platform for documents and real-time text translation
+  website: https://www.deepl.com
+  match_type: prefix
+  pattern: "deepl-domain-verification="
+  impact: >-
+    Compromised credentials expose translation history and glossaries , documents translated through DeepL may include contracts, internal communications, and confidential materials in multiple languages
+
+# ── Healthcare ───────────────────────────────────────────────────────────────
+
+- name: Infor CloudSuite
+  category: it_management
+  description: Enterprise ERP platform for healthcare, manufacturing, and public sector industries
+  website: https://www.infor.com
+  match_type: prefix
+  pattern: "infor-cloudsuite-domain-verification="
+  impact: >-
+    Compromised credentials expose ERP data including financials, supply chain operations, patient records (healthcare), or manufacturing data depending on the CloudSuite deployed
+
+# ── Government & Smartsheet ──────────────────────────────────────────────────
+
+- name: Smartsheet Gov
+  category: project_management
+  description: Smartsheet FedRAMP-authorized instance for US government agencies
+  website: https://www.smartsheet.com/government
+  match_type: prefix
+  pattern: "smartsheet-gov-site-validation="
+  impact: >-
+    Compromised credentials expose government project data, inter-agency workflows, and FedRAMP-environment content that may include CUI or other sensitive government information
+
+# ── Remote Access (sector scan additions) ────────────────────────────────────
+
+- name: Parsec
+  category: it_management
+  description: Low-latency remote desktop for gaming, creative production, and engineering teams
+  website: https://parsec.app
+  match_type: prefix
+  pattern: "parsec-domain-verification="
+  impact: >-
+    Compromised credentials enable low-latency remote desktop access to creative workstations , potentially granting access to the same development/design environments as the logged-in user
+
+# ── Event & Audience ─────────────────────────────────────────────────────────
+
+- name: Pigeonhole Live
+  category: communication
+  description: Live audience Q&A, polling, and survey platform for events and meetings
+  website: https://pigeonholelive.com
+  match_type: prefix
+  pattern: "pigeonholelive-site-verification="
+  impact: >-
+    Compromised credentials expose audience Q&A submissions, poll responses, survey data from events, and attendee information from organizational meetings
+
+# ── Travel ───────────────────────────────────────────────────────────────────
+
+- name: Airalo
+  category: communication
+  description: eSIM marketplace for international mobile data connectivity
+  website: https://www.airalo.com
+  match_type: prefix
+  pattern: "airalo-domain-verification="
+  impact: >-
+    Compromised credentials expose corporate eSIM program data , employee travel patterns, assigned phone numbers, data usage, and billing across international destinations
+
+# ── SEO ──────────────────────────────────────────────────────────────────────
+
+- name: Ahrefs
+  category: analytics
+  description: SEO toolset for backlink analysis, keyword research, and competitive intelligence
+  website: https://ahrefs.com
+  match_type: prefix
+  pattern: "ahrefs-site-verification_"
+  impact: >-
+    Compromised credentials expose SEO data including backlink profiles, keyword rankings, competitor analysis, and content gap research , revealing the organization's digital marketing strategy
+
+# ── Hardware & AV ────────────────────────────────────────────────────────────
+
+- name: Barco
+  category: it_management
+  description: Visualization and collaboration technology for meeting rooms and control rooms
+  website: https://www.barco.com
+  match_type: prefix
+  pattern: "barco-verification="
+  impact: >-
+    Compromised credentials allow accessing meeting room wireless presentation systems, potentially viewing or recording shared screens during meetings, or modifying AV configurations

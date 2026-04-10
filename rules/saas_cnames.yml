@@ -1,0 +1,1055 @@
+# SaaS Provider CNAME Detection Rules
+#
+# These rules detect SaaS providers by checking whether an organization's
+# subdomains resolve (via CNAME, A, or NS) to known provider infrastructure.
+#
+# This is a different detection technique than TXT verification records.
+# TXT records prove deliberate domain verification; CNAME records prove
+# active service integration. Both are valuable signals.
+#
+# Fields:
+#   name:           SaaS provider name (should match saas_providers.yml if a TXT rule exists)
+#   category:       Provider category
+#   description:    What the provider does
+#   website:        Provider website
+#   impact:         Security impact of credential compromise or Dangling SaaS
+#
+#   cname_targets:  List of domain suffixes that indicate this provider.
+#                   If a subdomain's CNAME (or CNAME chain) ends at a domain
+#                   matching any of these suffixes, the provider is detected.
+#                   Use the bare domain (e.g. "zendesk.com") not a wildcard.
+#
+#   subdomains_to_check:
+#                   Common subdomain names that organizations use when
+#                   integrating this provider. The tool will look up
+#                   {name}.{target_domain} for each entry.
+#                   Keep this list short and high-confidence.
+#
+#   mx_targets:     (Optional) Domain suffixes in MX records that indicate
+#                   this provider. Checked against the target domain's MX
+#                   records. Use for email/communication providers.
+#
+#   ns_targets:     (Optional) Domain suffixes in NS records for delegated
+#                   subdomains. Use for providers that host entire subzones
+#                   (e.g. Shopify, WordPress.com).
+#
+#   ip_ranges:      (Optional) Known IP CIDR ranges for the provider.
+#                   If a subdomain resolves to an IP in these ranges, the
+#                   provider is detected. Use sparingly; IPs change.
+#
+# Contributing:
+#   The easiest contribution is adding cname_targets and subdomains_to_check
+#   for a provider you know. Run `dig CNAME support.bigcorp.com` on a domain
+#   you know uses the provider and note where it points.
+#
+#   If you're unsure about subdomains_to_check, just add cname_targets.
+#   The tool will still detect the provider if discovered through zone
+#   walking or other subdomain enumeration.
+
+---
+
+# ── Identity & Access Management ─────────────────────────────────────────────
+
+- name: Okta
+  category: identity
+  description: Enterprise identity and access management platform providing SSO, MFA, and lifecycle management
+  website: https://www.okta.com
+  impact: >-
+    Compromised admin credentials provide access to the organization's entire
+    SSO fabric, with the ability to impersonate any user, modify MFA policies,
+    create backdoor accounts, and pivot into every connected application
+  cname_targets:
+    - "okta.com"
+    - "oktapreview.com"
+    - "okta-emea.com"
+    - "okta-dnssec.com"
+    - "trexcloud.com"
+  subdomains_to_check:
+    - sso
+    - login
+    - id
+    - auth
+    - identity
+
+- name: Auth0
+  category: identity
+  description: Identity platform for authentication and authorization (owned by Okta)
+  website: https://auth0.com
+  impact: >-
+    Compromised admin credentials expose the authentication layer, including
+    user databases, login flows, social connections, and the ability to modify
+    authentication rules affecting all applications
+  cname_targets:
+    - "auth0.com"
+    - "us.auth0.com"
+    - "eu.auth0.com"
+    - "au.auth0.com"
+  subdomains_to_check:
+    - auth
+    - login
+    - sso
+    - id
+
+- name: OneLogin
+  category: identity
+  description: Cloud-based identity and access management with SSO and MFA
+  website: https://www.onelogin.com
+  impact: >-
+    Compromised admin credentials allow managing all SSO-connected applications,
+    creating backdoor accounts, and modifying authentication policies
+  cname_targets:
+    - "onelogin.com"
+  subdomains_to_check:
+    - sso
+    - login
+    - onelogin
+
+- name: Ping Identity
+  category: identity
+  description: Enterprise identity security platform for SSO, MFA, and API security
+  website: https://www.pingidentity.com
+  impact: >-
+    Compromised credentials expose the identity fabric connecting all enterprise
+    applications, with the ability to modify federation settings and access policies
+  cname_targets:
+    - "pingidentity.com"
+    - "pingone.com"
+    - "connect.pingidentity.com"
+  subdomains_to_check:
+    - sso
+    - login
+    - auth
+    - federation
+
+# ── Email & Communication ────────────────────────────────────────────────────
+
+- name: Google Workspace
+  category: collaboration
+  description: Google's productivity suite including Gmail, Drive, Docs, Calendar, and admin console
+  website: https://workspace.google.com
+  impact: >-
+    Compromised credentials grant access to Gmail (email content and contacts),
+    Google Drive (documents, spreadsheets, presentations), Calendar (meeting
+    details), and admin console for domain-wide delegation
+  mx_targets:
+    - "google.com"
+    - "googlemail.com"
+    - "smtp.google.com"
+
+- name: Microsoft 365
+  category: identity
+  description: Microsoft 365 suite including Exchange Online, SharePoint, Teams, and Azure AD
+  website: https://www.microsoft.com/microsoft-365
+  impact: >-
+    Compromised credentials grant access to email (Exchange Online), files
+    (SharePoint/OneDrive), Teams chat history, and admin console for user
+    management and mail flow rules
+  cname_targets:
+    - "outlook.com"
+    - "sharepoint.com"
+    - "microsoftonline.com"
+    - "azurewebsites.net"
+    - "azureedge.net"
+    - "azure-api.net"
+    - "trafficmanager.net"
+  mx_targets:
+    - "protection.outlook.com"
+    - "mail.protection.outlook.com"
+  subdomains_to_check:
+    - mail
+    - autodiscover
+    - lyncdiscover
+    - sip
+    - owa
+
+- name: Mimecast
+  category: security
+  description: Cloud email security platform for threat protection and archiving
+  website: https://www.mimecast.com
+  impact: >-
+    Compromised credentials expose email security policies, quarantined messages,
+    email archives, and the ability to modify threat protection rules or whitelist
+    malicious senders
+  cname_targets:
+    - "mimecast.com"
+  mx_targets:
+    - "mimecast.com"
+
+- name: Proofpoint
+  category: security
+  description: Email security and threat protection platform
+  website: https://www.proofpoint.com
+  impact: >-
+    Compromised credentials expose email threat data, quarantine contents,
+    DLP policy configurations, and the ability to modify email filtering rules
+  mx_targets:
+    - "pphosted.com"
+    - "ppe-hosted.com"
+
+# ── Customer Support ─────────────────────────────────────────────────────────
+
+- name: Zendesk
+  category: support
+  description: Customer support and help desk platform for ticket management and knowledge bases
+  website: https://www.zendesk.com
+  impact: >-
+    Compromised credentials expose customer support tickets (often containing
+    PII, account details, and internal escalation notes), knowledge base drafts,
+    and customer contact information
+  cname_targets:
+    - "zendesk.com"
+    - "zdassets.com"
+    - "zendesk.host"
+  subdomains_to_check:
+    - support
+    - help
+    - helpdesk
+    - kb
+    - community
+
+- name: Freshdesk
+  category: support
+  description: Cloud-based customer support and helpdesk platform
+  website: https://www.freshworks.com/freshdesk/
+  impact: >-
+    Compromised credentials expose customer support tickets, contact information,
+    knowledge base content, and customer satisfaction data
+  cname_targets:
+    - "freshdesk.com"
+    - "freshworks.com"
+  subdomains_to_check:
+    - support
+    - help
+    - helpdesk
+
+- name: ServiceNow
+  category: it_management
+  description: IT service management, workflows, and enterprise operations platform
+  website: https://www.servicenow.com
+  impact: >-
+    Compromised credentials expose IT incident data, change management records,
+    CMDB asset inventory, employee service requests, and workflow automation
+    configurations
+  cname_targets:
+    - "service-now.com"
+    - "servicenow.com"
+  subdomains_to_check:
+    - itsm
+    - snow
+    - servicenow
+    - service
+
+- name: Intercom
+  category: support
+  description: Customer messaging platform for support, engagement, and in-app communication
+  website: https://www.intercom.com
+  impact: >-
+    Compromised credentials expose customer support conversations, user data,
+    help center content, and the ability to send messages to customers as the
+    organization's support team
+  cname_targets:
+    - "intercom.com"
+    - "intercom.io"
+    - "intercomcdn.com"
+  subdomains_to_check:
+    - chat
+    - messenger
+    - intercom
+
+# ── E-Commerce & Hosting ─────────────────────────────────────────────────────
+
+- name: Shopify
+  category: payments
+  description: E-commerce platform for online stores, payments, and retail point-of-sale
+  website: https://www.shopify.com
+  impact: >-
+    Compromised credentials expose storefront data, customer orders with
+    addresses, payment configurations, and the ability to modify the online
+    store or redirect payments
+  cname_targets:
+    - "shopify.com"
+    - "myshopify.com"
+    - "shopifysvc.com"
+  subdomains_to_check:
+    - shop
+    - store
+    - checkout
+
+- name: Salesforce
+  category: crm
+  description: CRM and cloud computing platform for sales, service, marketing, and custom applications
+  website: https://www.salesforce.com
+  impact: >-
+    Compromised credentials expose CRM data including customer records, sales
+    opportunities, contracts, support cases, and custom objects, often the most
+    sensitive business data repository in an organization
+  cname_targets:
+    - "salesforce.com"
+    - "force.com"
+    - "salesforce-sites.com"
+    - "sfdcstatic.com"
+    - "site.com"
+    - "salesforce-experience.com"
+  subdomains_to_check:
+    - crm
+    - sf
+    - salesforce
+
+- name: HubSpot
+  category: crm
+  description: CRM, marketing automation, sales, and customer service platform
+  website: https://www.hubspot.com
+  impact: >-
+    Compromised credentials expose marketing contacts, sales pipeline deals,
+    customer support tickets, email templates, and the ability to send emails
+    from the organization's connected domain
+  cname_targets:
+    - "hubspot.com"
+    - "hubspotlinks.com"
+    - "hubspot.net"
+    - "hs-sites.com"
+    - "hubspotpagebuilder.com"
+  subdomains_to_check:
+    - blog
+    - info
+    - landing
+    - resources
+    - go
+
+# ── Content & CMS ────────────────────────────────────────────────────────────
+
+- name: WordPress.com (VIP/Hosted)
+  category: cms
+  description: Managed WordPress hosting for enterprise websites and blogs
+  website: https://wordpress.com
+  impact: >-
+    Compromised credentials grant access to website content management, user
+    accounts, published content, and the ability to inject malicious code or
+    deface the organization's web presence
+  cname_targets:
+    - "wordpress.com"
+    - "wp.com"
+    - "wpcomstaging.com"
+    - "wpengine.com"
+    - "wpenginepowered.com"
+  ns_targets:
+    - "wordpress.com"
+  subdomains_to_check:
+    - blog
+    - www
+    - news
+    - press
+
+- name: Contentful
+  category: cms
+  description: Headless CMS for managing structured content via API
+  website: https://www.contentful.com
+  impact: >-
+    Compromised credentials expose all managed content, API keys, content
+    models, and the ability to modify published content across all delivery
+    channels
+  cname_targets:
+    - "contentful.com"
+    - "ctfassets.net"
+    - "flinkly.com"
+
+- name: Webflow
+  category: cms
+  description: Visual web design and hosting platform for marketing sites
+  website: https://webflow.com
+  impact: >-
+    Compromised credentials allow modifying website content, accessing form
+    submissions, and altering the organization's web presence
+  cname_targets:
+    - "webflow.io"
+    - "proxy-ssl.webflow.com"
+  subdomains_to_check:
+    - www
+    - landing
+
+# ── CDN & Infrastructure ─────────────────────────────────────────────────────
+
+- name: Cloudflare
+  category: cloud
+  description: CDN, DDoS protection, DNS, and web application security platform
+  website: https://www.cloudflare.com
+  impact: >-
+    Compromised credentials expose DNS management, firewall rules, DDoS
+    settings, and cached content. Attacker could redirect traffic, disable
+    protections, or intercept requests
+  cname_targets:
+    - "cdn.cloudflare.net"
+  ns_targets:
+    - "cloudflare.com"
+
+- name: AWS CloudFront
+  category: cloud
+  description: Amazon Web Services content delivery network
+  website: https://aws.amazon.com/cloudfront/
+  impact: >-
+    Compromised AWS credentials expose CloudFront distributions, origin
+    configurations, and the ability to modify content delivery or redirect
+    traffic. Dangling CNAME to unclaimed CloudFront distributions enables
+    full content takeover
+  cname_targets:
+    - "cloudfront.net"
+
+- name: Azure CDN
+  category: cloud
+  description: Microsoft Azure content delivery network and web app hosting
+  website: https://azure.microsoft.com
+  impact: >-
+    Compromised Azure credentials expose CDN configurations, web app deployments,
+    and the ability to modify hosted applications. Dangling CNAMEs to unclaimed
+    Azure resources enable subdomain takeover
+  cname_targets:
+    - "azureedge.net"
+    - "azurewebsites.net"
+    - "azure-api.net"
+    - "cloudapp.azure.com"
+    - "azurefd.net"
+    - "blob.core.windows.net"
+    - "azurestaticapps.net"
+
+- name: Fastly
+  category: cloud
+  description: Edge cloud platform for CDN, security, and compute
+  website: https://www.fastly.com
+  impact: >-
+    Compromised credentials expose CDN configurations, edge computing logic,
+    TLS certificates, and cached content. Dangling Fastly CNAMEs can be
+    claimed by any Fastly customer
+  cname_targets:
+    - "fastly.net"
+    - "fastlylb.net"
+    - "a]global-ssl.fastly.net"
+
+- name: Akamai
+  category: cloud
+  description: Global CDN and cybersecurity platform
+  website: https://www.akamai.com
+  impact: >-
+    Compromised credentials expose CDN configurations, WAF rules, bot management
+    policies, and origin server details
+  cname_targets:
+    - "akamaized.net"
+    - "akamai.net"
+    - "akamaiedge.net"
+    - "edgesuite.net"
+    - "edgekey.net"
+
+# ── Video & Conferencing ─────────────────────────────────────────────────────
+
+- name: Zoom
+  category: video
+  description: Video conferencing and collaboration platform for meetings, webinars, and phone
+  website: https://zoom.us
+  impact: >-
+    Compromised credentials allow joining meetings, accessing cloud recordings
+    and transcripts, viewing contact lists, and hosting meetings that appear
+    to originate from the organization
+  cname_targets:
+    - "zoom.us"
+    - "zoom.com"
+  subdomains_to_check:
+    - zoom
+    - meet
+    - meeting
+
+# ── Project Management ───────────────────────────────────────────────────────
+
+- name: Atlassian
+  category: collaboration
+  description: Atlassian Cloud suite including Jira, Confluence, Trello, and Bitbucket
+  website: https://www.atlassian.com
+  impact: >-
+    Compromised credentials expose Confluence wikis (often containing architecture
+    docs, runbooks, credentials), Jira tickets with vulnerability details, and
+    Bitbucket source code repositories
+  cname_targets:
+    - "atlassian.net"
+    - "jira.com"
+    - "trello.com"
+    - "bitbucket.org"
+    - "statuspage.io"
+    - "atlassian.io"
+  subdomains_to_check:
+    - jira
+    - confluence
+    - wiki
+    - bitbucket
+    - status
+
+- name: Monday.com
+  category: project_management
+  description: Work operating system for project management, workflows, and team collaboration
+  website: https://monday.com
+  impact: >-
+    Compromised credentials expose project boards, workflow automations, file
+    attachments, and team communications across the organization's work
+    management environment
+  cname_targets:
+    - "monday.com"
+
+# ── DevOps ───────────────────────────────────────────────────────────────────
+
+- name: GitHub Pages
+  category: devtools
+  description: Static site hosting from GitHub repositories
+  website: https://pages.github.com
+  impact: >-
+    Dangling SaaS: unclaimed GitHub Pages CNAME allows any GitHub user to serve
+    content on the organization's subdomain by creating a matching repository
+  cname_targets:
+    - "github.io"
+    - "githubusercontent.com"
+  subdomains_to_check:
+    - docs
+    - developer
+    - dev
+
+- name: Heroku
+  category: devtools
+  description: Cloud application platform (PaaS) for deploying, managing, and scaling web apps
+  website: https://www.heroku.com
+  impact: >-
+    Dangling SaaS: unclaimed Heroku app CNAMEs can be registered by any Heroku
+    user, serving malicious content on the organization's subdomain.
+    Compromised credentials expose deployed applications, environment variables
+    containing secrets, and deployment pipelines
+  cname_targets:
+    - "herokuapp.com"
+    - "herokussl.com"
+    - "herokudns.com"
+  subdomains_to_check:
+    - app
+    - api
+    - staging
+
+- name: Netlify
+  category: devtools
+  description: Web hosting and serverless functions platform for JAMstack sites
+  website: https://www.netlify.com
+  impact: >-
+    Dangling SaaS: unclaimed Netlify site CNAMEs can be claimed, allowing
+    content takeover on the organization's subdomain
+  cname_targets:
+    - "netlify.app"
+    - "netlify.com"
+    - "bitballoon.com"
+
+- name: Vercel
+  category: devtools
+  description: Frontend deployment platform for Next.js and static sites
+  website: https://vercel.com
+  impact: >-
+    Dangling SaaS: unclaimed Vercel deployment CNAMEs can be claimed by creating
+    a project with the matching domain configuration
+  cname_targets:
+    - "vercel.app"
+    - "now.sh"
+    - "vercel-dns.com"
+
+# ── Security ─────────────────────────────────────────────────────────────────
+
+- name: Zscaler
+  category: security
+  description: Cloud security platform providing zero trust network access and secure web gateway
+  website: https://www.zscaler.com
+  impact: >-
+    Compromised credentials allow modifying zero trust access policies, URL
+    filtering rules, and DLP configurations, potentially opening network paths
+    or disabling data loss controls
+  cname_targets:
+    - "zscaler.com"
+    - "zscaler.net"
+    - "zscalerone.net"
+    - "zscloud.net"
+    - "zsdns.net"
+  subdomains_to_check:
+    - vpn
+    - gateway
+    - proxy
+    - pac
+    - zscaler
+
+- name: CrowdStrike Falcon
+  category: security
+  description: Endpoint detection and response (EDR) and threat intelligence platform
+  website: https://www.crowdstrike.com
+  impact: >-
+    Compromised credentials expose endpoint detection alerts, threat
+    intelligence, incident response data, and the ability to modify security
+    policies or whitelist malicious processes
+  cname_targets:
+    - "crowdstrike.com"
+    - "falcon.crowdstrike.com"
+
+# ── Marketing & Analytics ────────────────────────────────────────────────────
+
+- name: Marketo
+  category: crm
+  description: Marketing automation platform for lead management and campaign orchestration (Adobe)
+  website: https://www.marketo.com
+  impact: >-
+    Compromised credentials expose marketing lead databases, email campaign
+    content, lead scoring models, and the ability to send emails from the
+    organization's domain
+  cname_targets:
+    - "marketo.com"
+    - "mktossl.com"
+    - "mktoweb.com"
+  subdomains_to_check:
+    - go
+    - info
+    - pages
+    - landing
+    - resources
+
+- name: Pardot
+  category: crm
+  description: B2B marketing automation for lead generation and email campaigns (Salesforce)
+  website: https://www.salesforce.com/products/marketing-cloud/marketing-automation/
+  impact: >-
+    Compromised credentials expose B2B marketing leads, prospect scoring data,
+    email campaign content, and allow sending lead-nurture emails appearing to
+    originate from the organization
+  cname_targets:
+    - "pardot.com"
+  subdomains_to_check:
+    - go
+    - info
+    - pages
+
+# ── File Storage ─────────────────────────────────────────────────────────────
+
+- name: Box
+  category: storage
+  description: Cloud content management and file sharing platform with enterprise security controls
+  website: https://www.box.com
+  impact: >-
+    Compromised credentials expose shared files and folders. Box often stores
+    contracts, financial documents, HR files, and legal materials with granular
+    sharing that one compromised account can traverse
+  cname_targets:
+    - "box.com"
+    - "boxcloud.com"
+
+- name: Dropbox
+  category: storage
+  description: Cloud file storage, synchronization, and collaboration platform
+  website: https://www.dropbox.com
+  impact: >-
+    Compromised credentials expose synced files, shared folders, and team spaces.
+    Attacker can exfiltrate documents, plant malicious files that sync to other
+    users, or access file version history
+  cname_targets:
+    - "dropbox.com"
+    - "dropboxapi.com"
+
+# ── Learning & Training ──────────────────────────────────────────────────────
+
+- name: Cornerstone OnDemand
+  category: hr
+  description: Learning management system for employee training and development
+  website: https://www.cornerstoneondemand.com
+  impact: >-
+    Compromised credentials expose employee training records, compliance
+    certification status, learning paths, and course content including
+    internal security awareness materials
+  cname_targets:
+    - "cornerstoneondemand.com"
+    - "csod.com"
+  subdomains_to_check:
+    - lms
+    - learning
+    - training
+    - elearning
+
+# ── HR & Recruiting (additional providers) ──────────────────────────────────────
+
+- name: PhenomPeople
+  category: hr
+  description: AI-powered talent experience platform for recruiting and career sites
+  website: https://www.phenom.com
+  impact: >-
+    Compromised credentials expose candidate applications, job postings,
+    recruiter communications, career site content, and talent CRM data
+  cname_targets:
+    - "phenompeople.net"
+    - "phenom.com"
+  subdomains_to_check:
+    - careers
+    - jobs
+    - talent
+
+- name: Avature
+  category: hr
+  description: Enterprise talent acquisition and management platform
+  website: https://www.avature.net
+  impact: >-
+    Compromised credentials expose recruiting portals, candidate databases,
+    internal mobility data, and talent pipeline analytics
+  cname_targets:
+    - "avature.net"
+  subdomains_to_check:
+    - careers
+    - jobs
+    - recruiting
+
+- name: Greenhouse
+  category: hr
+  description: Applicant tracking system and recruiting platform
+  website: https://www.greenhouse.com
+  impact: >-
+    Compromised credentials expose job applications with candidate PII,
+    interview scorecards, offer letters, and the hiring pipeline
+  cname_targets:
+    - "greenhouse.io"
+    - "greenhouse-mail.io"
+  subdomains_to_check:
+    - careers
+    - jobs
+    - apply
+
+- name: Lever
+  category: hr
+  description: Talent acquisition suite combining ATS and CRM
+  website: https://www.lever.co
+  impact: >-
+    Compromised credentials expose candidate profiles, interview feedback,
+    offer details, and recruiting analytics
+  cname_targets:
+    - "lever.co"
+  subdomains_to_check:
+    - careers
+    - jobs
+
+# ── Advocacy & Community ────────────────────────────────────────────────────
+
+- name: Influitive
+  category: marketing
+  description: Customer advocacy and community engagement platform
+  website: https://www.influitive.com
+  impact: >-
+    Compromised credentials expose customer advocate profiles, referral data,
+    reward redemption history, and community engagement metrics
+  cname_targets:
+    - "influitive.com"
+  subdomains_to_check:
+    - community
+    - advocates
+    - gateway
+
+# ── Status Pages (additional providers) ─────────────────────────────────────────
+
+- name: Statuspage (Atlassian)
+  category: monitoring
+  description: Hosted status page for communicating incidents and uptime
+  website: https://www.atlassian.com/software/statuspage
+  impact: >-
+    Dangling SaaS: attacker could claim the domain and post fraudulent incident
+    updates, misdirecting customers during real outages or creating fake
+    incidents to damage reputation
+  cname_targets:
+    - "statuspage.io"
+    - "stspg-customer.com"
+  subdomains_to_check:
+    - status
+    - uptime
+
+# ── Email Security (additional providers) ────────────────────────────────────────
+
+- name: SparkPost
+  category: email
+  description: Email delivery and analytics platform for transactional and marketing email
+  website: https://www.sparkpost.com
+  impact: >-
+    Compromised credentials allow sending emails from the organization's domain
+    through SparkPost's infrastructure, passing email authentication checks
+  cname_targets:
+    - "sparkpostmail.com"
+    - "sparkpost.com"
+
+- name: SendGrid
+  category: email
+  description: Cloud-based email delivery platform for transactional and marketing email (Twilio)
+  website: https://sendgrid.com
+  impact: >-
+    Compromised credentials allow sending email as the organization, accessing
+    email analytics and contact lists, and modifying email templates
+  cname_targets:
+    - "sendgrid.net"
+  subdomains_to_check:
+    - email
+    - em
+    - mail
+
+# ── Surveys & Research ───────────────────────────────────────────────────────
+
+- name: Qualtrics
+  category: analytics
+  description: Experience management platform for surveys, feedback, and research
+  website: https://www.qualtrics.com
+  impact: >-
+    Compromised credentials expose survey data including customer feedback,
+    employee engagement results, and market research containing competitive
+    intelligence
+  cname_targets:
+    - "qualtrics.com"
+  subdomains_to_check:
+    - survey
+    - feedback
+    - research
+
+# ── E-Signature (additional providers) ──────────────────────────────────────────
+
+- name: DocuSign
+  category: collaboration
+  description: Electronic signature platform for contracts, agreements, and legal documents
+  website: https://www.docusign.com
+  impact: >-
+    Compromised credentials allow sending signing requests from the
+    organization's account, accessing completed contracts with signatures,
+    and viewing legal agreements and financial documents
+  cname_targets:
+    - "docusign.com"
+    - "docusign.net"
+  subdomains_to_check:
+    - sign
+    - esign
+    - docusign
+
+# ── Analytics (additional providers) ─────────────────────────────────────────────
+
+- name: Google Analytics / Tag Manager
+  category: analytics
+  description: Web analytics and tag management services
+  website: https://analytics.google.com
+  impact: >-
+    Compromised credentials expose website traffic data, user behavior flows,
+    conversion tracking, and audience demographics
+  cname_targets:
+    - "googletagmanager.com"
+    - "google-analytics.com"
+
+# ── WAF & Bot Protection ────────────────────────────────────────────────────
+
+- name: Imperva (Incapsula)
+  category: security
+  description: Web application firewall, DDoS protection, and bot management
+  website: https://www.imperva.com
+  impact: >-
+    Compromised credentials expose WAF rules, DDoS protection configurations,
+    bot management policies, and origin server IP addresses
+  cname_targets:
+    - "impervadns.net"
+    - "incapdns.net"
+
+# ── Identity (additional providers) ────────────────────────────────────────
+
+- name: ForgeRock
+  category: identity
+  description: Enterprise identity and access management platform for SSO, CIAM, and API security
+  website: https://www.forgerock.com
+  impact: >-
+    Compromised credentials expose the identity fabric connecting enterprise
+    and customer-facing applications, with the ability to modify authentication
+    flows, session policies, and access control rules
+  cname_targets:
+    - "forgerock.io"
+    - "forgerock.com"
+    - "forgeblocks.com"
+  subdomains_to_check:
+    - sso
+    - login
+    - auth
+    - id
+    - am
+
+- name: PingOne
+  category: identity
+  description: Cloud-based identity platform for SSO, MFA, and directory services (Ping Identity)
+  website: https://www.pingidentity.com/en/platform/pingone.html
+  impact: >-
+    Compromised credentials allow managing SSO policies, user directories, and
+    MFA configurations across all connected applications
+  cname_targets:
+    - "pingone.com"
+    - "pingone.eu"
+    - "pingone.asia"
+    - "pingone.ca"
+  subdomains_to_check:
+    - sso
+    - login
+    - auth
+
+- name: Azure AD B2C
+  category: identity
+  description: Microsoft customer identity and access management for consumer-facing apps
+  website: https://learn.microsoft.com/en-us/azure/active-directory-b2c/
+  impact: >-
+    Compromised credentials expose customer identity configurations, user flows,
+    custom policies, and the ability to modify consumer authentication for the
+    organization's applications
+  cname_targets:
+    - "aadg.windows.net"
+    - "b2clogin.com"
+    - "ciamlogin.com"
+  subdomains_to_check:
+    - auth
+    - login
+    - id
+
+- name: SAP Gigya (Customer Data Cloud)
+  category: identity
+  description: Customer identity and access management (CIAM) platform by SAP
+  website: https://www.sap.com/products/crm/customer-data-management.html
+  impact: >-
+    Compromised credentials expose customer identity profiles, consent records,
+    social login configurations, and the ability to modify registration and
+    authentication flows for consumer-facing applications
+  cname_targets:
+    - "gigya.com"
+    - "gigya-api.com"
+  subdomains_to_check:
+    - auth
+    - login
+    - id
+    - accounts
+
+# ── HR & Recruiting (additional providers) ────────────────────────────────
+
+- name: Beamery
+  category: hr
+  description: Talent lifecycle management and CRM platform for recruiting and retention
+  website: https://beamery.com
+  impact: >-
+    Compromised credentials expose candidate pipelines, talent CRM data,
+    employee skills inventories, and internal mobility program information
+  cname_targets:
+    - "beamery.com"
+  subdomains_to_check:
+    - talent
+    - careers
+    - jobs
+
+- name: Happydance
+  category: hr
+  description: Career site and employer branding platform
+  website: https://www.happydance.com
+  impact: >-
+    Compromised credentials expose career site content, job postings, employer
+    branding assets, and application flow configurations
+  cname_targets:
+    - "happydance.website"
+    - "happydance.io"
+  subdomains_to_check:
+    - careers
+    - jobs
+
+- name: iCIMS
+  category: hr
+  description: Enterprise talent acquisition and applicant tracking platform
+  website: https://www.icims.com
+  impact: >-
+    Compromised credentials expose candidate applications with PII, recruiting
+    workflows, interview data, and offer management information
+  cname_targets:
+    - "icims.com"
+    - "ttcportals.com"
+  subdomains_to_check:
+    - careers
+    - jobs
+    - apply
+    - talent
+
+# ── Support (additional providers) ─────────────────────────────────────────
+
+- name: Freshservice
+  category: it_management
+  description: Cloud-based IT service management and helpdesk platform (Freshworks)
+  website: https://www.freshworks.com/freshservice/
+  impact: >-
+    Compromised credentials expose IT service tickets, asset inventory, change
+    management records, and internal employee support communications
+  cname_targets:
+    - "freshservice.com"
+  subdomains_to_check:
+    - support
+    - help
+    - helpdesk
+    - it
+    - service
+
+# ── API Management (additional providers) ──────────────────────────────────
+
+- name: Apigee (Google Cloud)
+  category: cloud
+  description: API management and analytics platform by Google Cloud
+  website: https://cloud.google.com/apigee
+  impact: >-
+    Compromised credentials expose API configurations, traffic analytics,
+    developer portal content, API keys, and the ability to modify API
+    proxies or rate limiting policies
+  cname_targets:
+    - "apigee.net"
+    - "apigee.com"
+  subdomains_to_check:
+    - api
+    - gateway
+    - developer
+
+# ── E-Commerce (additional providers) ──────────────────────────────────────
+
+- name: Adobe Commerce (Magento)
+  category: payments
+  description: Enterprise e-commerce platform for online stores (formerly Magento)
+  website: https://business.adobe.com/products/magento/magento-commerce.html
+  impact: >-
+    Compromised credentials expose storefront management, customer orders with
+    payment data, product catalogs, and the ability to modify checkout flows
+    or inject malicious scripts
+  cname_targets:
+    - "magentocloud.map.fastly.net"
+    - "magento.cloud"
+    - "magentosite.cloud"
+  subdomains_to_check:
+    - shop
+    - store
+    - ecommerce
+    - checkout
+
+# ── Monitoring (additional providers) ──────────────────────────────────────
+
+- name: UptimeRobot
+  category: monitoring
+  description: Website uptime monitoring and status page service
+  website: https://uptimerobot.com
+  impact: >-
+    Dangling SaaS: attacker could claim the status page subdomain and post
+    fraudulent uptime data, or access monitoring configurations revealing
+    which services the organization considers critical
+  cname_targets:
+    - "uptimerobot.com"
+  subdomains_to_check:
+    - status
+    - uptime
+    - health
+
+# ── Azure Services (additional providers) ──────────────────────────────────
+
+- name: Azure App Proxy
+  category: identity
+  description: Microsoft Azure Application Proxy for publishing internal apps externally
+  website: https://learn.microsoft.com/en-us/entra/identity/app-proxy/
+  impact: >-
+    Dangling SaaS: unclaimed Azure App Proxy CNAMEs can potentially be claimed,
+    serving content on the organization's subdomain. Compromised credentials
+    expose internal application publishing configurations and access policies
+  cname_targets:
+    - "msappproxy.net"
+  subdomains_to_check:
+    - portal
+    - apps
+    - remote

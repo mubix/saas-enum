@@ -1,0 +1,253 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+#
+# saas-enum - Enumerate SaaS providers via DNS records
+#
+# Usage:
+#   saas-enum -d example.com
+#   saas-enum -f domains.txt
+#   saas-enum -d example.com --json
+#   saas-enum -d example.com --show-unmatched
+#   saas-enum -d example.com --html report.html
+#
+
+require "optparse"
+require_relative "lib/resolver"
+require_relative "lib/rules"
+require_relative "lib/cname"
+require_relative "lib/zonewalk"
+require_relative "lib/output"
+
+module SaasEnum
+  class CLI
+    BANNER = <<~BANNER
+
+        ____             ____    ______
+       / __/__ ____ ___ / __/__ / /_  /__ _  __
+      _\\ \\/ _ `/ _ `(_-</ _// _ \\/ / / / '_ \\/ _ \\
+     /___/\\_,_/\\_,_/___/___/_//_/_/_\\_\\/_//_/\\_,_/
+
+       SaaS Enumeration via DNS Records
+    BANNER
+
+    def initialize(argv)
+      @options = {
+        domains:        [],
+        json:           false,
+        html:           nil,
+        show_unmatched: false,
+        skip_cname:     false,
+        zonewalk:       false,
+        timeout:        10,
+        rules_dir:      File.join(__dir__, "rules"),
+        verbose:        false,
+      }
+      parse(argv)
+    end
+
+    def run
+      validate!
+
+      $stderr.puts BANNER unless @options[:json]
+
+      # Load TXT verification rules
+      txt_engine = SaasEnum::RuleEngine.new
+      txt_engine.load_directory(@options[:rules_dir])
+
+      # Load CNAME detection rules
+      cname_engine = SaasEnum::CnameEngine.new
+      unless @options[:skip_cname]
+        cname_file = File.join(@options[:rules_dir], "saas_cnames.yml")
+        cname_engine.load_file(cname_file) if File.exist?(cname_file)
+      end
+
+      unless @options[:json]
+        rule_count = txt_engine.rules.length
+        cname_count = cname_engine.rules.length
+        $stderr.puts "  Loaded #{rule_count} TXT rules + #{cname_count} CNAME rules from #{@options[:rules_dir]}"
+        $stderr.puts "  Querying #{@options[:domains].length} domain(s) across #{SaasEnum::Resolver::RESOLVERS.length} DNS resolvers"
+        $stderr.puts ""
+      end
+
+      resolver = SaasEnum::Resolver.new(timeout: @options[:timeout])
+      all_results = []
+
+      @options[:domains].each do |domain|
+        domain = domain.strip.downcase
+        next if domain.empty?
+
+        $stderr.print "  Scanning #{domain}..." unless @options[:json]
+
+        # Phase 1: TXT record matching
+        txt_records = resolver.lookup(domain)
+        txt_matches = txt_engine.match(txt_records)
+
+        # Phase 2: CNAME/MX/NS detection
+        cname_matches = []
+        unless @options[:skip_cname]
+          cname_matches = cname_engine.check(domain)
+        end
+
+        # Phase 3: DNSSEC zone walking (if enabled)
+        zonewalk_matches = []
+        if @options[:zonewalk] && !@options[:skip_cname]
+          walker = SaasEnum::ZoneWalker.new(domain)
+          $stderr.print " zonewalk..." unless @options[:json]
+          walker.walk
+          zonewalk_matches = walker.check_against_rules(cname_engine)
+          if @options[:verbose] && walker.errors.any?
+            walker.errors.each { |e| $stderr.puts "\n    [zonewalk] #{e}" }
+          end
+          if walker.discovered.any? && !@options[:json]
+            $stderr.print " (#{walker.discovered.length} names found)"
+          end
+        end
+
+        # Combine matches, dedup by provider name (TXT takes priority, then CNAME, then zonewalk)
+        txt_providers = txt_matches.map { |m| m[:provider] }.uniq
+        unique_cname = cname_matches.reject { |m| txt_providers.include?(m[:provider]) }
+        cname_providers = (txt_providers + unique_cname.map { |m| m[:provider] }).uniq
+        unique_zonewalk = zonewalk_matches.reject { |m| cname_providers.include?(m[:provider]) }
+        all_matches = txt_matches + unique_cname + unique_zonewalk
+
+        # Unmatched TXT records
+        matched_records = txt_matches.map { |m| m[:record] }
+        unmatched = txt_records.reject { |r| matched_records.include?(r) }
+
+        unless @options[:json]
+          txt_count = txt_providers.length
+          cname_only = unique_cname.map { |m| m[:provider] }.uniq.length
+          total = txt_count + cname_only
+          extra = cname_only > 0 ? " (+#{cname_only} via CNAME/MX)" : ""
+          $stderr.puts " #{total} provider(s) found#{extra}"
+        end
+
+        if @options[:json]
+          all_results << SaasEnum::Output.to_hash(
+            domain, all_matches, unmatched,
+            resolver_errors: resolver.errors
+          )
+        else
+          SaasEnum::Output.print_table(domain, all_matches, resolver_errors: resolver.errors)
+          SaasEnum::Output.print_unmatched(domain, unmatched) if @options[:show_unmatched]
+        end
+      end
+
+      SaasEnum::Output.print_json(all_results) if @options[:json]
+
+      if @options[:html]
+        require_relative "lib/html_report"
+        # Rebuild results for HTML if we didn't collect them in JSON mode
+        if all_results.empty?
+          # Re-run to collect structured data for HTML
+          resolver2 = SaasEnum::Resolver.new(timeout: @options[:timeout])
+          @options[:domains].each do |domain|
+            domain = domain.strip.downcase
+            next if domain.empty?
+
+            txt_records = resolver2.lookup(domain)
+            txt_matches = txt_engine.match(txt_records)
+            cname_matches = @options[:skip_cname] ? [] : cname_engine.check(domain)
+            txt_providers = txt_matches.map { |m| m[:provider] }.uniq
+            unique_cname = cname_matches.reject { |m| txt_providers.include?(m[:provider]) }
+            all_matches = txt_matches + unique_cname
+            matched_records = txt_matches.map { |m| m[:record] }
+            unmatched = txt_records.reject { |r| matched_records.include?(r) }
+
+            all_results << SaasEnum::Output.to_hash(
+              domain, all_matches, unmatched,
+              resolver_errors: resolver2.errors
+            )
+          end
+        end
+
+        SaasEnum::HtmlReport.generate(all_results, @options[:html])
+        $stderr.puts "\n  HTML report written to #{@options[:html]}"
+      end
+    end
+
+    private
+
+    def parse(argv)
+      parser = OptionParser.new do |opts|
+        opts.banner = "Usage: saas-enum [options]"
+        opts.separator ""
+        opts.separator "Options:"
+
+        opts.on("-d", "--domain DOMAIN", "Target domain to enumerate") do |d|
+          @options[:domains] << d
+        end
+
+        opts.on("-f", "--file FILE", "File containing list of domains (one per line)") do |f|
+          unless File.exist?(f)
+            $stderr.puts "Error: File not found: #{f}"
+            exit 1
+          end
+          domains = File.readlines(f, chomp: true)
+                        .map(&:strip)
+                        .reject { |l| l.empty? || l.start_with?("#") }
+          @options[:domains].concat(domains)
+        end
+
+        opts.on("--json", "Output results as JSON") do
+          @options[:json] = true
+        end
+
+        opts.on("--html FILE", "Generate HTML report to FILE") do |f|
+          @options[:html] = f
+        end
+
+        opts.on("--show-unmatched", "Show TXT records that didn't match any rule") do
+          @options[:show_unmatched] = true
+        end
+
+        opts.on("--skip-cname", "Skip CNAME/MX/NS detection (TXT records only)") do
+          @options[:skip_cname] = true
+        end
+
+        opts.on("--zonewalk", "Enable DNSSEC NSEC zone walking for subdomain discovery") do
+          @options[:zonewalk] = true
+        end
+
+        opts.on("--timeout SECONDS", Integer, "DNS query timeout per resolver (default: 10)") do |t|
+          @options[:timeout] = t
+        end
+
+        opts.on("--rules-dir DIR", "Path to rules directory (default: ./rules)") do |d|
+          @options[:rules_dir] = d
+        end
+
+        opts.on("-v", "--verbose", "Show resolver errors and debug info") do
+          @options[:verbose] = true
+        end
+
+        opts.on("-h", "--help", "Show this help message") do
+          puts BANNER
+          puts opts
+          exit
+        end
+
+        opts.on("--version", "Show version") do
+          puts "saas-enum 0.2.0"
+          exit
+        end
+      end
+
+      parser.parse!(argv)
+
+      # If bare arguments remain, treat them as domains
+      argv.each { |arg| @options[:domains] << arg }
+    end
+
+    def validate!
+      if @options[:domains].empty?
+        $stderr.puts "Error: No domains specified. Use -d DOMAIN or -f FILE."
+        $stderr.puts "Run 'saas-enum --help' for usage."
+        exit 1
+      end
+    end
+  end
+end
+
+SaasEnum::CLI.new(ARGV).run

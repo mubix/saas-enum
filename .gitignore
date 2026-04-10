@@ -1,0 +1,8 @@
+*.gem
+*.swp
+*.swo
+*~
+.DS_Store
+.bundle/
+vendor/
+tmp/
